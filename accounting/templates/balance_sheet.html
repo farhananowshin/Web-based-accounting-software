@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    /* Styling consistency */
+    .report-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+        padding: 0;
+    }
+    .report-header {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%); /* Dark Header */
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 12px 12px 0 0;
+        border-bottom: 2px solid #374151;
+    }
+    
+    /* --- ✅ NEW: Filter Box Style --- */
+    .filter-box {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .bs-table th {
+        background-color: #f1f5f9;
+        color: #475569;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+        padding: 1rem 1rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .bs-table td {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .amount-cell {
+        font-family: 'Roboto Mono', monospace;
+        font-weight: 600;
+        text-align: right;
+    }
+    .total-line {
+        font-weight: 700;
+        background-color: #eef2ff; /* Highlighted total row */
+        border-top: 1px solid #c3dafe !important;
+    }
+    /* Final Accounting Underline */
+    .final-total {
+        border-top: 3px double #1e293b !important;
+        font-size: 1.1rem;
+    }
+    .balance-status-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 1.5rem;
+        font-weight: 600;
+        background-color: #d1fae5;
+        color: #047857;
+    }
+
+    /* Print Hide */
+    @media print {
+        .filter-box, .btn-print, .navbar { display: none !important; }
+    }
+</style>
+
+<div class="container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title" style="color: #1e293b;">Balance Sheet</h1>
+            <p class="text-muted mb-0">Statement of Financial Position</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-outline-secondary px-4 rounded-pill btn-print">
+            <i class="bi bi-printer-fill me-2"></i> Print
+        </button>
+    </div>
+
+    <div class="filter-box mb-4 d-flex align-items-center gap-3">
+        <form method="get" class="d-flex align-items-center gap-2 w-100">
+            <label class="fw-bold text-secondary m-0" style="white-space: nowrap;">
+                <i class="bi bi-calendar3 me-1"></i> As of Date:
+            </label>
+            <input type="date" name="date" class="form-control" style="max-width: 200px;" value="{{ selected_date }}">
+            
+            <button type="submit" class="btn btn-primary fw-bold px-3">
+                Show Report
+            </button>
+            
+            {% if selected_date %}
+            <a href="?" class="btn btn-light text-danger border">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="report-card">
+        <div class="card-header report-header d-flex justify-content-between align-items-center">
+            <h5 class="m-0 text-white fw-bold">Financial Position</h5>
+            <span class="badge bg-light text-dark">
+                {% if selected_date %}
+                    Date: {{ selected_date }}
+                {% else %}
+                    Date: {{ "now"|date:"F d, Y" }} (Today)
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="card-body p-0">
+            <div class="row m-0">
+                
+                <div class="col-md-6 p-0 border-end">
+                    <h6 class="ps-3 pt-3 pb-2 fw-bold text-uppercase" style="color: #4f46e5;">Assets</h6>
+                    <table class="table bs-table mb-0">
+                        <tbody>
+                            {% for account in assets %}
+                            <tr class="table-hover">
+                                <td style="width: 70%;" class="ps-4">{{ account.name }}</td>
+                                <td class="amount-cell">{{ account.get_balance|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center py-3 text-muted">No assets recorded.</td></tr>
+                            {% endfor %}
+                            
+                            <tr class="total-row fw-bold">
+                                <td class="ps-4">TOTAL ASSETS</td>
+                                <td class="amount-cell">{{ total_assets|floatformat:2 }}</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="2" class="final-total">
+                                    <h4 class="m-0 fw-bolder">{{ total_assets|floatformat:2 }}</h4>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-6 p-0">
+                    <h6 class="ps-3 pt-3 pb-2 fw-bold text-uppercase text-danger">Liabilities & Equity</h6>
+                    <table class="table bs-table mb-0">
+                        <tbody>
+                            <tr class="table-secondary">
+                                <td colspan="2" class="fw-bold ps-4">LIABILITIES</td>
+                            </tr>
+                            {% for account in liabilities %}
+                            <tr class="table-hover">
+                                <td style="width: 70%;" class="ps-4">{{ account.name }}</td>
+                                <td class="amount-cell">{{ account.get_balance|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center py-3 text-muted">No liabilities recorded.</td></tr>
+                            {% endfor %}
+                            <tr class="total-row fw-bold">
+                                <td class="ps-4">TOTAL LIABILITIES</td>
+                                <td class="amount-cell">{{ total_liabilities|floatformat:2 }}</td>
+                            </tr>
+
+                            <tr class="table-secondary">
+                                <td colspan="2" class="fw-bold ps-4 pt-4">OWNER'S EQUITY</td>
+                            </tr>
+                            {% for account in equity_accounts %}
+                            <tr class="table-hover">
+                                <td class="ps-4">{{ account.name }}</td>
+                                <td class="amount-cell">{{ account.get_balance|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                            
+                            <tr class="table-light fw-bold">
+                                <td class="ps-4">Net {% if net_profit >= 0 %} Profit {% else %} Loss {% endif %}</td>
+                                <td class="amount-cell">
+                                    <span class="{% if net_profit >= 0 %} text-success {% else %} text-danger {% endif %}">
+                                        {{ net_profit|floatformat:2 }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr class="total-row fw-bold">
+                                <td class="ps-4">TOTAL EQUITY</td>
+                                <td class="amount-cell">{{ total_equity_with_profit|floatformat:2 }}</td>
+                            </tr>
+                            
+                            <tr class="total-row">
+                                <td class="final-total ps-4">TOTAL LIABILITIES & EQUITY</td>
+                                <td class="final-total amount-cell">
+                                    <h4 class="m-0 fw-bolder">{{ total_liab_equity|floatformat:2 }}</h4>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-5">
+        {% if total_assets == total_liab_equity %}
+            <div class="balance-status-badge">
+                <i class="bi bi-check-circle-fill me-2"></i> Balance Sheet is Balanced (A = L + E)
+            </div>
+        {% else %}
+            <div class="balance-status-badge bg-danger text-white">
+                <i class="bi bi-x-circle-fill me-2"></i> Unbalanced! Please check journal entries.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

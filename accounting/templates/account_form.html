@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6">
+        <div class="modern-card shadow-lg border-0 rounded-3 overflow-hidden">
+            
+            <div class="card-header text-white p-4" style="background-color: #1e293b;">
+                <h4 class="mb-0 fw-bold text-center">{{ title|default:"Manage Account" }}</h4>
+            </div>
+
+            <div class="card-body p-4 p-md-5 bg-white">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-uppercase small text-muted">Account Name</label>
+                        {{ form.name|add_class:"form-control form-control-lg" }}
+                        {% if form.name.errors %}
+                            <small class="text-danger">{{ form.name.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-uppercase small text-muted">Account Type</label>
+                        {{ form.account_type|add_class:"form-select form-select-lg" }}
+                    </div>
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold" style="background-color: #4f46e5; border: none;">
+                            <i class="bi bi-check-circle-fill me-2"></i> Save Changes
+                        </button>
+                        <a href="{% url 'account-list' %}" class="btn btn-light btn-lg border text-muted fw-bold">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- Dark Theme Background --- */
+    body {
+        background-color: #ffffffff !important;
+        color: #f5f0f0ff;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* --- Page Header --- */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-top: 20px;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #202543ff;
+    }
+
+    /* --- Print Button --- */
+    .btn-print {
+        background-color: #374151;
+        color: #e5e7eb;
+        border: 1px solid #4b5563;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-print:hover {
+        background-color: #4b5563;
+        color: white;
+    }
+
+    /* --- Report Card --- */
+    .report-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 30px;
+        color: #1f2937;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- Filter Box Style --- */
+    .filter-card {
+        background-color: #1f2937;
+        border: 1px solid #374151;
+        border-radius: 12px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* --- Table Styling --- */
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .custom-table thead th {
+        color: #6b7280;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .custom-table tbody tr {
+        transition: 0.2s;
+    }
+    .custom-table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    .custom-table td {
+        padding: 15px 10px;
+        font-weight: 500;
+        color: #374151;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle; /* Align vertically center */
+    }
+
+    .account-name {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .amount {
+        font-family: 'Inter', monospace;
+        font-weight: 600;
+    }
+
+    /* --- ✅ NEW: COLORFUL BADGES (Like Account List) --- */
+    .badge-soft {
+        padding: 6px 12px;
+        border-radius: 20px; /* Pill shape */
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        border: 1px solid transparent;
+    }
+
+    /* Specific Colors */
+    .badge-Asset { background-color: #dbeafe; color: #1e40af; } /* Blue */
+    .badge-Liability { background-color: #fee2e2; color: #991b1b; } /* Red */
+    .badge-Equity { background-color: #f3e8ff; color: #6b21a8; } /* Purple */
+    .badge-Revenue { background-color: #dcfce7; color: #166534; } /* Green */
+    .badge-Expense { background-color: #ffedd5; color: #9a3412; } /* Orange */
+    .badge-Other { background-color: #f3f4f6; color: #374151; } /* Grey */
+
+    /* --- Status Badge (Total Balanced) --- */
+    .status-badge {
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .balanced {
+        background-color: #10b981;
+        color: white;
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    }
+    
+    .unbalanced {
+        background-color: #ef4444;
+        color: white;
+        box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+    }
+
+    .total-row td {
+        background-color: #f9fafb;
+        font-weight: 800;
+        color: #111827;
+        padding: 20px 10px;
+        border-top: 2px solid #e5e7eb;
+        border-bottom: none;
+    }
+
+    /* Print adjustments */
+    @media print {
+        body { background-color: white !important; color: black; }
+        .btn-print, .navbar, .filter-card { display: none; }
+        .report-card { box-shadow: none; border: 1px solid #ccc; }
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Financial Reports</h1>
+            <p class="text-gray-400 mb-0" style="color: #28354dff;">Overview of your Trial Balance</p>
+        </div>
+        <button onclick="window.print()" class="btn-print">
+            <i class="bi bi-printer"></i> Print Report
+        </button>
+    </div>
+
+    <div class="filter-card">
+        <form method="get" class="d-flex align-items-center gap-3 w-100">
+            <label class="fw-bold text-white m-0" style="white-space: nowrap;">
+                <i class="bi bi-calendar3 me-2"></i>Filter up to:
+            </label>
+            <input type="date" name="date" class="form-control" style="max-width: 200px;" value="{{ selected_date }}">
+            
+            <button type="submit" class="btn btn-primary fw-bold">
+                Apply Filter
+            </button>
+            
+            {% if selected_date %}
+            <a href="?" class="btn btn-outline-light">
+                <i class="bi bi-x-lg"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="report-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0">Trial Balance</h3>
+            <span class="text-muted small">
+                {% if selected_date %}
+                    Report Date: <strong>{{ selected_date }}</strong>
+                {% else %}
+                    As of: {{ "now"|date:"F d, Y" }}
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Account Name</th>
+                        <th style="width: 20%;">Type</th>
+                        <th style="width: 20%; text-align: right;">Debit</th>
+                        <th style="width: 20%; text-align: right;">Credit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in trial_balance %}
+                    <tr>
+                        <td class="account-name">{{ item.account }}</td>
+                        <td>
+                            <span class="badge-soft badge-{{ item.type }}">
+                                {{ item.type }}
+                            </span>
+                        </td>
+                        <td class="text-end amount">
+                            {% if item.debit > 0 %}
+                                {{ item.debit|floatformat:2 }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end amount">
+                            {% if item.credit > 0 %}
+                                {{ item.credit|floatformat:2 }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No transactions found for this period.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2" class="text-end text-uppercase">Total</td>
+                        <td class="text-end">{{ total_debit|floatformat:2 }}</td>
+                        <td class="text-end">{{ total_credit|floatformat:2 }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+            {% if total_debit == total_credit %}
+                <div class="status-badge balanced">
+                    <i class="bi bi-check-circle-fill me-2"></i> Balanced
+                </div>
+            {% else %}
+                <div class="status-badge unbalanced">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Unbalanced
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="text-center mt-5 pb-5">
+        <a href="{% url 'dashboard' %}" class="text-decoration-none text-secondary small">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock content %}

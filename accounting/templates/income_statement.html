@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    /* Printing adjustments */
+    @media print {
+        .navbar, .btn-print, .filter-box { display: none !important; }
+        .report-card { box-shadow: none; border: 1px solid #ccc; }
+        .net-result-row td { border-top: 3px double black !important; }
+    }
+    
+    .report-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        color: #1e293b;
+        margin-bottom: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    /* --- ✅ NEW: Filter Box Style --- */
+    .filter-box {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    /* Header Design */
+    .report-header {
+        background-color: #f1f5f9;
+        color: #1e293b;
+        font-weight: 700;
+        padding: 1.5rem 2rem;
+        border-radius: 12px 12px 0 0;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .report-header h2 {
+        color: #1e293b;
+        font-size: 1.6rem;
+    }
+    
+    /* Table Headers */
+    .section-header {
+        background-color: #f8fafc;
+        font-weight: 700;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        color: #475569;
+        letter-spacing: 0.05em;
+    }
+    .amount-text {
+        font-family: 'Roboto Mono', monospace;
+        font-weight: 600;
+    }
+    .statement-table td {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    /* Net Result Styling */
+    .net-result-row {
+        background-color: #f5f3ff;
+        font-weight: 800;
+        color: #4f46e5 !important;
+    }
+    .net-loss-row {
+        background-color: #fee2e2; 
+        font-weight: 800;
+        color: #b91c1c !important;
+    }
+    .net-result-row td {
+        border-top: 3px double #1e293b !important; 
+    }
+    .text-profit { color: #047857 !important; }
+    .text-loss { color: #dc2626 !important; }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0 fw-bold" style="color: #1e293b;">Income Statement (P&L)</h2>
+            <p class="text-muted mb-0 small">Profit and Loss Statement</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-dark px-4 rounded-pill btn-print">
+            <i class="bi bi-printer-fill me-2"></i> Print
+        </button>
+    </div>
+
+    <div class="filter-box mb-4 d-flex align-items-center gap-3">
+        <form method="get" class="d-flex align-items-center gap-2 w-100">
+            <label class="fw-bold text-secondary m-0" style="white-space: nowrap;">
+                <i class="bi bi-calendar3 me-1"></i> Report upto:
+            </label>
+            <input type="date" name="date" class="form-control" style="max-width: 200px;" value="{{ selected_date }}">
+            
+            <button type="submit" class="btn btn-primary fw-bold px-3">
+                Show Report
+            </button>
+            
+            {% if selected_date %}
+            <a href="?" class="btn btn-light text-danger border">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="report-card shadow-lg">
+        <div class="report-header d-flex justify-content-between align-items-center">
+            <h5 class="m-0 fw-bold">Financial Performance</h5>
+            <span class="badge bg-white text-dark border">
+                {% if selected_date %}
+                    Period Ending: {{ selected_date }}
+                {% else %}
+                    Period Ending: {{ "now"|date:"F d, Y" }}
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table statement-table mb-0">
+                    
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="section-header ps-4">TOTAL REVENUE</th>
+                            <th class="text-end section-header pe-5">Amount (Tk)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in revenues %}
+                        <tr class="table-hover">
+                            <td style="width: 70%;" class="ps-5">{{ account.name }}</td>
+                            <td style="width: 10%;"></td>
+                            <td class="text-end amount-text pe-5">{{ account.get_balance|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-3">No revenue accounts defined.</td></tr>
+                        {% endfor %}
+                        <tr class="fw-bold bg-light">
+                            <td colspan="2" class="ps-5">TOTAL REVENUE</td>
+                            <td class="text-end amount-text pe-5 text-dark">{{ total_revenue|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                    
+                    <thead>
+                        <tr>
+                            <th colspan="3" class="section-header ps-4 mt-4 pt-4 text-danger">LESS: OPERATING EXPENSES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in expenses %}
+                        <tr class="table-hover">
+                            <td class="ps-5">{{ account.name }}</td>
+                            <td></td>
+                            <td class="text-end amount-text pe-5">({{ account.get_balance|floatformat:2 }})</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-3">No expenses recorded.</td></tr>
+                        {% endfor %}
+                        <tr class="fw-bold bg-light">
+                            <td colspan="2" class="ps-5">TOTAL EXPENSES</td>
+                            <td class="text-end amount-text pe-5 text-dark">({{ total_expense|floatformat:2 }})</td>
+                        </tr>
+                    </tbody>
+
+                    <tfoot class="{% if net_profit > 0 %} net-result-row {% else %} net-loss-row {% endif %}">
+                        <tr>
+                            <td colspan="2" class="ps-5 fw-bolder py-3 text-uppercase">
+                                NET {% if net_profit > 0 %} PROFIT {% else %} LOSS {% endif %}
+                            </td>
+                            <td class="text-end amount-text pe-5 fw-bolder py-3">
+                                <span class="{% if net_profit > 0 %} text-profit {% else %} text-loss {% endif %}">
+                                    {{ net_profit|floatformat:2 }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4 pb-5">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary px-4 rounded-pill">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock content %}

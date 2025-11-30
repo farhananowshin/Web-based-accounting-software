@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    /* ============================================
+       AUTHENTICATION CARD STYLES
+       ============================================ */
+    .auth-card {
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: none;
+    }
+    
+    .auth-card .card-header {
+        background-color: #1e293b;
+        color: white;
+        border-radius: 16px 16px 0 0;
+        border: none;
+    }
+    
+    /* Company Logo Container (Bigger) */
+    .company-logo {
+        width: 100px;   /* increased from 80px */
+        height: 100px;  /* increased from 80px */
+        margin: 0 auto 15px;
+        background: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .company-logo img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    /* Placeholder for no logo */
+    .logo-placeholder {
+        font-size: 36px;
+        font-weight: 800;
+        color: #1e293b;
+    }
+    
+    .company-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+    
+    /* Form Inputs */
+    .auth-card input {
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #cbd5e1;
+        transition: all 0.2s;
+    }
+    
+    .auth-card input:focus {
+        border-color: #1e293b;
+        box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
+        outline: none;
+    }
+    
+    /* Button Theme */
+    .btn-theme {
+        background-color: #1e293b;
+        color: white;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        border: none;
+    }
+    
+    .btn-theme:hover {
+        background-color: #0f172a;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
+        color: white;
+    }
+    
+    /* Inline Form Controls */
+    .form-inline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-inline .form-check {
+        margin-bottom: 0;
+    }
+    
+    .form-check-input:checked {
+        background-color: #1e293b;
+        border-color: #1e293b;
+    }
+    
+    /* Links */
+    .auth-link {
+        color: #1e293b;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+    
+    .auth-link:hover {
+        color: #0f172a;
+        text-decoration: underline;
+    }
+    
+    /* Alert Styling */
+    .alert-custom {
+        border-radius: 8px;
+        border: none;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card auth-card">
+                <!-- Card Header with Company Branding -->
+                <div class="card-header text-center py-4">
+                    <!-- Dynamic Company Logo -->
+                    <div class="company-logo">
+                        {% if company and company.logo %}
+                            <img src="{{ company.logo.url }}" alt="{{ company.company_name }} Logo">
+                        {% else %}
+                            <!-- Fallback: Static logo or placeholder -->
+                            <img src="{% static 'images/accura_logo.png' %}" 
+                                 alt="AccuraERP Logo"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span class="logo-placeholder" style="display:none;">AE</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Company Name (Dynamic) -->
+                    <h3 class="company-name mb-2">
+                        {% if company %}{{ company.company_name }}{% else %}AccuraERP{% endif %}
+                    </h3>
+                    <p class="small mb-0 text-white-50">Professional Accounting Software</p>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="mb-1">Welcome Back</h4>
+                    <p class="text-muted small mb-4">Sign in to access your dashboard</p>
+                    
+                    <!-- Error Messages -->
+                    {% if form.errors %}
+                    <div class="alert alert-danger alert-custom small" role="alert">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Invalid username or password.
+                    </div>
+                    {% endif %}
+
+                    <!-- Login Form -->
+                    <form method="POST" class="login-form">
+                        {% csrf_token %}
+
+                        <!-- Form Fields -->
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-bold small text-uppercase text-muted">
+                                {{ field.label }}
+                            </label>
+                            {{ field|add_class:"form-control" }}
+                            
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ field.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="form-inline mb-4">
+                            <div class="form-check d-flex align-items-center gap-2 mb-0">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="rememberMe"
+                                       name="remember_me">
+                                <label class="form-check-label small mb-0" for="rememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="{% url 'password_reset' %}" class="small auth-link">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-theme w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer text-center small bg-light" style="border-radius: 0 0 16px 16px; border: none;">
+                    New here?
+                    <a href="{% url 'register' %}" class="auth-link">
+                        Create an Account
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Trust Indicators -->
+            <div class="text-center mt-3">
+                <p class="small text-muted mb-0">
+                    🔒 Secure Login • Your data is protected
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Remember Me Feature -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const usernameField = document.getElementById("id_username");
+    const rememberMeCheckbox = document.getElementById("rememberMe");
+    const savedUsername = localStorage.getItem("savedUsername");
+
+    // Load saved username if exists
+    if (savedUsername && usernameField) {
+        usernameField.value = savedUsername;
+        if (rememberMeCheckbox) {
+            rememberMeCheckbox.checked = true;
+        }
+    }
+
+    // Save username on form submit (only if Remember Me is checked)
+    const form = document.querySelector(".login-form");
+    if (form) {
+        form.addEventListener("submit", function() {
+            if (rememberMeCheckbox && rememberMeCheckbox.checked && usernameField && usernameField.value) {
+                localStorage.setItem("savedUsername", usernameField.value);
+            } else {
+                localStorage.removeItem("savedUsername");
+            }
+        });
+    }
+});
+</script>
+{% endblock content %}

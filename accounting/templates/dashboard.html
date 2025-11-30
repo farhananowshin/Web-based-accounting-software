@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% load accounting_filters %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<style>
+    /* --- Dashboard Specific Styles --- */
+    :root {
+        --primary-color: #2563eb; /* Royal Blue */
+        --secondary-color: #64748b; /* Slate Gray */
+        --success-color: #10b981; /* Emerald Green */
+        --danger-color: #ef4444; /* Red */
+        --warning-color: #f59e0b; /* Amber */
+        --dark-text: #1e293b; /* Slate 800 */
+        --light-text: #94a3b8; /* Slate 400 */
+        --bg-card: #ffffff;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        background-color: #f1f5f9; /* Light Gray Background */
+    }
+
+    /* Header Style */
+    .dashboard-header {
+        background: var(--bg-card);
+        padding: 20px 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    /* KPI Summary Cards */
+    .kpi-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .kpi-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--light-text);
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+    
+    .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.2;
+    }
+
+    /* Icon & Color Accents */
+    .kpi-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.8rem;
+        opacity: 0.15;
+    }
+    
+    .border-l-4 { border-left: 5px solid; }
+    .border-blue { border-color: var(--primary-color); }
+    .border-red { border-color: var(--danger-color); }
+    .border-green { border-color: var(--success-color); }
+    .border-orange { border-color: var(--warning-color); }
+
+    /* Chart Section */
+    .chart-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        height: 420px; /* Slightly taller for better view */
+    }
+    .section-heading {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Account Cards */
+    .account-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+    .account-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .acc-tag {
+        font-size: 0.7rem;
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-weight: 700;
+        text-transform: uppercase;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    /* Modern Tag Colors */
+    .tag-Asset { background: #dbeafe; color: #1e40af; }
+    .tag-Liability { background: #fee2e2; color: #dd42afff; }
+    .tag-Equity { background: #f3e8ff; color: #6b21a8; }
+    .tag-Revenue { background: #dcfce7; color: #166534; }
+    .tag-Expense { background: #ffedd5; color: #9a3412; }
+
+    .acc-balance {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 15px 0 5px 0;
+        font-family: 'Inter', monospace; /* Monospace for numbers alignment */
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+</style>
+
+<div class="dashboard-header">
+    <div class="d-flex align-items-center">
+        {% if SITE_LOGO %}
+            <img src="{{ SITE_LOGO }}" alt="" style="height: 45px; margin-right: 20px; border-radius: 8px;">
+        {% else %}
+             <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3">
+                <i class="bi bi-grid-1x2-fill fs-4"></i>
+             </div>
+        {% endif %}
+        <div>
+            <h4 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px;">{{ SITE_NAME }} Dashboard</h4>
+            <small class="text-muted fw-medium">Real-time Financial Overview</small>
+        </div>
+    </div>
+    <div>
+        <div class="btn-group shadow-sm">
+            <a href="{% url 'journal-create' %}" class="btn btn-primary fw-bold px-4 py-2">
+                <i class="bi bi-plus-lg me-2"></i> New Entry
+            </a>
+            <button type="button" class="btn btn-white border dropdown-toggle dropdown-toggle-split text-secondary" data-bs-toggle="dropdown">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3 mt-2">
+                <li><a class="dropdown-item py-2" href="{% url 'account-add' %}"><i class="bi bi-bank2 me-2 text-muted"></i> Create Account</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item py-2" href="{% url 'income-statement' %}"><i class="bi bi-file-earmark-bar-graph me-2 text-muted"></i> View Reports</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3">
+        <div class="kpi-card border-l-blue">
+            <div class="icon-bg bg-blue-soft"><i class="bi bi-briefcase"></i></div>
+            <div class="kpi-label">Total Assets</div>
+            <div class="kpi-value">{{ total_assets|floatformat:0 }}</div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
+                <div class="bg-primary w-25 rounded-1" style="height: 40%"></div>
+                <div class="bg-primary w-25 rounded-1" style="height: 80%"></div>
+                <div class="bg-primary w-25 rounded-1" style="height: 60%"></div>
+                <div class="bg-primary w-25 rounded-1" style="height: 100%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="kpi-card border-l-red">
+            <div class="icon-bg bg-red-soft"><i class="bi bi-bank"></i></div>
+            <div class="kpi-label">Liabilities</div>
+            <div class="kpi-value">{{ total_liabilities|floatformat:0 }}</div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
+                <div class="bg-danger w-25 rounded-1" style="height: 30%"></div>
+                <div class="bg-danger w-25 rounded-1" style="height: 50%"></div>
+                <div class="bg-danger w-25 rounded-1" style="height: 70%"></div>
+                <div class="bg-danger w-25 rounded-1" style="height: 40%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="kpi-card border-l-green">
+            <div class="icon-bg bg-green-soft"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">{{ total_revenue|floatformat:0 }}</div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
+                <div class="bg-success w-25 rounded-1" style="height: 20%"></div>
+                <div class="bg-success w-25 rounded-1" style="height: 60%"></div>
+                <div class="bg-success w-25 rounded-1" style="height: 80%"></div>
+                <div class="bg-success w-25 rounded-1" style="height: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="kpi-card border-l-orange">
+            <div class="icon-bg bg-orange-soft"><i class="bi bi-pie-chart"></i></div>
+            <div class="kpi-label">Net Profit</div>
+            <div class="kpi-value">{{ net_profit|floatformat:0 }}</div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
+                <div class="bg-warning w-25 rounded-1" style="height: 40%"></div>
+                <div class="bg-warning w-25 rounded-1" style="height: 60%"></div>
+                <div class="bg-warning w-25 rounded-1" style="height: 30%"></div>
+                <div class="bg-warning w-25 rounded-1" style="height: 90%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="d-flex justify-content-between mb-4 align-items-center">
+                <h6 class="fw-bold text-dark m-0 text-uppercase small">Revenue vs Expense Trend</h6>
+                <span class="badge bg-light text-dark border px-3 py-2">This Year</span>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <h6 class="fw-bold text-dark mb-4 text-uppercase small">Expense Distribution</h6>
+            <div style="height: 250px; display: flex; justify-content: center;">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="text-center mt-3 small text-muted">Top categories by spending</div>
+        </div>
+    </div>
+</div>
+
+<div class="section-header">
+    <h5 class="section-title">Ledger Balances</h5>
+    <a href="{% url 'account-list' %}" class="text-decoration-none fw-bold small text-primary">View All &rarr;</a>
+</div>
+
+<div class="row g-4 mb-5">
+    {% for account in accounts %}
+    <div class="col-md-6 col-lg-3">
+        <div class="account-card h-100">
+            <span class="acc-tag tag-{{ account.account_type }}">{{ account.account_type }}</span>
+            <div class="acc-name">{{ account.name }}</div>
+
+<div class="acc-bal {% if account.get_balance < 0 %}text-danger{% endif %}">
+    {{ account.get_balance|taka }}
+</div>
+
+{% if account.get_balance < 0 %}
+    <div class="mb-2">
+        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+            ⚠️ Overdraft
+        </span>
+    </div>
+{% endif %}
+
+<div class="text-end pt-2 border-top">
+                <a href="{% url 'ledger' account.id %}" class="text-decoration-none small fw-bold text-primary stretched-link">
+                    Ledger History <i class="bi bi-clock-history ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5 text-muted bg-white rounded-3 border border-dashed">
+        <i class="bi bi-folder2-open display-4 mb-2"></i>
+        <p>No accounts found. Start by adding one.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    { label: 'Revenue', data: [12000, 15000, 3000, 5000, 8000, {{ total_revenue }}], backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Expense', data: [8000, 10000, 2000, 3000, 4000, {{ total_expense }}], backgroundColor: '#ef4444', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } } },
+                scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9', borderDash: [5, 5] } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // Pie Chart
+        const ctxPie = document.getElementById('pieChart');
+        const expData = {{ expense_data|safe }};
+        if (expData.length > 0) {
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ expense_labels|safe }},
+                    datasets: [{ 
+                        data: expData, 
+                        backgroundColor: ['#ef4444', '#f59e0bff', '#2563eb', '#8d5efbff', '#65758cff'], 
+                        borderWidth: 0, hoverOffset: 10 
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } }, cutout: '75%' }
+            });
+        } else {
+            ctxPie.parentElement.innerHTML = '<div class="text-center text-muted py-5"><p class="small fw-bold">No Data Available</p></div>';
+        }
+    });
+</script>
+{% endblock content %}

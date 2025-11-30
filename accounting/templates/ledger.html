@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body { background-color: #f8fafc; }
+    
+    .ledger-header-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 30px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+    }
+
+    .account-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .account-type-badge {
+        background-color: #e0e7ff;
+        color: #4338ca;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .balance-box {
+        background: #1e293b;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 12px;
+        text-align: right;
+        box-shadow: 0 10px 15px -3px rgba(30, 41, 59, 0.3);
+    }
+
+    .balance-box.negative {
+        background: #dc2626;
+    }
+
+    .balance-negative {
+        color: #dc2626 !important;
+        font-weight: 700;
+    }
+
+    .ledger-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .ledger-table th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 18px 24px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .ledger-table td {
+        padding: 16px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .ledger-table tr:last-child td { border-bottom: none; }
+    .ledger-table tr:hover td { background-color: #f8fafc; }
+
+    .amount-text {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container py-4">
+    
+    <div class="ledger-header-card d-flex justify-content-between align-items-center">
+        <div>
+            <span class="account-type-badge mb-2 d-inline-block">{{ account.account_type }}</span>
+            <h1 class="account-title">{{ account.name }} Ledger</h1>
+            <p class="text-muted mb-0 mt-1">View all transactions for this account</p>
+        </div>
+        
+        <!-- ✅ No Taka sign, just number -->
+        <div class="balance-box {% if current_balance < 0 %}negative{% endif %}">
+            <div class="small text-white-50 text-uppercase">Current Balance</div>
+            <div class="h2 fw-bold mb-0">
+                {% if current_balance < 0 %}
+                    {{ current_balance|floatformat:2|slice:"1:" }}
+                {% else %}
+                    {{ current_balance|floatformat:2 }}
+                {% endif %}
+            </div>
+            {% if current_balance < 0 %}
+            <small class="text-white-50">⚠️ Overdraft</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ledger-table">
+            <thead>
+                <tr>
+                    <th style="width: 15%">Date</th>
+                    <th style="width: 10%">Ref #</th>
+                    <th style="width: 35%">Description</th>
+                    <th class="text-end" style="width: 13%">Debit</th>
+                    <th class="text-end" style="width: 13%">Credit</th>
+                    <th class="text-end" style="width: 14%">Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in ledger_data %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td><span class="badge bg-light text-dark border">#{{ entry.journal_ref }}</span></td>
+                    <td>{{ entry.description|default:"-" }}</td>
+                    
+                    <!-- ✅ No Taka sign -->
+                    <td class="text-end amount-text text-secondary">
+                        {% if entry.debit > 0 %}{{ entry.debit|floatformat:2 }}{% else %}-{% endif %}
+                    </td>
+                    
+                    <td class="text-end amount-text text-secondary">
+                        {% if entry.credit > 0 %}{{ entry.credit|floatformat:2 }}{% else %}-{% endif %}
+                    </td>
+                    
+                    <!-- ✅ Red color if negative, no minus sign -->
+                    <td class="text-end amount-text fw-bold {% if entry.balance < 0 %}balance-negative{% else %}text-dark{% endif %}">
+                        {% if entry.balance < 0 %}
+                            {{ entry.balance|floatformat:2|slice:"1:" }}
+                        {% else %}
+                            {{ entry.balance|floatformat:2 }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-journal-x display-4 d-block mb-3" style="color: #cbd5e1;"></i>
+                        No transactions found yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4" style="border-radius: 10px;">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+</div>
+{% endblock content %}
