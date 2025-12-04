@@ -314,44 +314,143 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.font.size = 12;
         Chart.defaults.color = '#64748b';
 
-        // Bar Chart
-        new Chart(document.getElementById('barChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    { label: 'Revenue', data: [12000, 15000, 3000, 5000, 8000, {{ total_revenue }}], backgroundColor: '#10b981', borderRadius: 4 },
-                    { label: 'Expense', data: [8000, 10000, 2000, 3000, 4000, {{ total_expense }}], backgroundColor: '#ef4444', borderRadius: 4 }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } } },
-                scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9', borderDash: [5, 5] } }, x: { grid: { display: false } } }
-            }
-        });
+        // Django থেকে আসা data
+        const monthlyRevenue = {{ monthly_revenue|safe }};
+        const monthlyExpense = {{ monthly_expense|safe }};
+        
+        // সব মাসের label (12টি)
+        const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        // --- 1. Bar Chart (Fixed - Dynamic Data) ---
+        const barCtx = document.getElementById('barChart');
+        if (barCtx && monthlyRevenue.length === 12 && monthlyExpense.length === 12) {
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels, // সব 12 মাস
+                    datasets: [
+                        { 
+                            label: 'Revenue', 
+                            data: monthlyRevenue, // Dynamic data from Django
+                            backgroundColor: '#10b981',
+                            borderRadius: 6,
+                            maxBarThickness: 50
+                        },
+                        { 
+                            label: 'Expense', 
+                            data: monthlyExpense, // Dynamic data from Django
+                            backgroundColor: '#ef4444',
+                            borderRadius: 6,
+                            maxBarThickness: 50
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toLocaleString('en-BD');
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9',
+                                borderDash: [5, 5]
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('en-BD'); // Number formatting
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Bar chart data mismatch: Revenue or Expense array length is not 12');
+        }
 
-        // Pie Chart
+        // --- 2. Pie/Doughnut Chart ---
         const ctxPie = document.getElementById('pieChart');
         const expData = {{ expense_data|safe }};
-        if (expData.length > 0) {
+        const expLabels = {{ expense_labels|safe }};
+        
+        if (ctxPie && expData && expData.length > 0) {
             new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: {{ expense_labels|safe }},
-                    datasets: [{ 
-                        data: expData, 
-                        backgroundColor: ['#ef4444', '#f59e0bff', '#2563eb', '#8d5efbff', '#65758cff'], 
-                        borderWidth: 0, hoverOffset: 10 
+                    labels: expLabels,
+                    datasets: [{
+                        data: expData,
+                        backgroundColor: ['#ef4444', '#f59e0b', '#2563eb', '#8b5cf6', '#64748b'],
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } }, cutout: '75%' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.toLocaleString('en-BD');
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '75%'
+                }
             });
-        } else {
+        } else if (ctxPie) {
             ctxPie.parentElement.innerHTML = '<div class="text-center text-muted py-5"><p class="small fw-bold">No Data Available</p></div>';
         }
     });
 </script>
+
 {% endblock content %}

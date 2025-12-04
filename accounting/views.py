@@ -8,6 +8,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import Q, Sum
+from django.db.models.functions import TruncMonth
+from datetime import datetime
+from django.views.decorators.http import require_GET
+from .models import Account
 
 # Import Forms and Models
 from .forms import JournalForm, TransactionFormSet, UserRegistrationForm, AccountForm
@@ -65,7 +69,6 @@ def logout_view(request):
 # ==========================================
 # 2. DASHBOARD
 # ==========================================
-
 @login_required
 def dashboard_view(request):
     try:
@@ -79,9 +82,49 @@ def dashboard_view(request):
         
         expense_labels = []
         expense_data = []
+        
+        # === NEW: Monthly Revenue & Expense Calculation ===
+        monthly_revenue = [0] * 12
+        monthly_expense = [0] * 12
+        current_year = datetime.now().year
+        
+        # Calculate monthly revenue
+        revenue_accounts = Account.objects.filter(account_type='Revenue')
+        for acc in revenue_accounts:
+            monthly_txns = Transaction.objects.filter(
+                account=acc,
+                journal__status='Posted',
+                journal__date__year=current_year
+            ).annotate(
+                month=TruncMonth('journal__date')
+            ).values('month').annotate(
+                total_credit=Sum('credit')
+            )
+            
+            for item in monthly_txns:
+                month_index = item['month'].month - 1
+                monthly_revenue[month_index] += float(item['total_credit'] or 0)
+        
+        # Calculate monthly expense
+        expense_accounts = Account.objects.filter(account_type='Expense')
+        for acc in expense_accounts:
+            monthly_txns = Transaction.objects.filter(
+                account=acc,
+                journal__status='Posted',
+                journal__date__year=current_year
+            ).annotate(
+                month=TruncMonth('journal__date')
+            ).values('month').annotate(
+                total_debit=Sum('debit')
+            )
+            
+            for item in monthly_txns:
+                month_index = item['month'].month - 1
+                monthly_expense[month_index] += float(item['total_debit'] or 0)
+        # === END NEW CODE ===
 
         for acc in accounts:
-            # ড্যাশবোর্ডে আমরা সবসময় কারেন্ট ব্যালেন্স দেখাবো
+            # ড্যাশবোর্ডে আমরা সবসময় কারেন্ট ব্যালেন্স দেখাবো
             balance = acc.get_balance() 
             
             if acc.account_type == 'Asset':
@@ -108,11 +151,14 @@ def dashboard_view(request):
             'accounts': accounts,
             'expense_labels': expense_labels,
             'expense_data': expense_data,
+            'monthly_revenue': monthly_revenue,  # NEW
+            'monthly_expense': monthly_expense,  # NEW
         }
         return render(request, 'dashboard.html', context)
     except Exception as e:
         messages.error(request, f'Dashboard error: {str(e)}')
         return render(request, 'dashboard.html', {})
+
 
 # ==========================================
 # 3. JOURNAL MANAGEMENT
@@ -397,3 +443,21 @@ def balance_sheet_view(request):
         'total_liab_equity': total_liab_equity,
         'selected_date': selected_date
     })
+@require_GET
+def account_balance_api(request, account_id):
+    try:
+        account = Account.objects.get(id=account_id)
+        # ✅ FIX: get_balance() মেথড ব্যবহার করুন account.balance এর পরিবর্তে
+        current_balance = account.get_balance()
+        
+        return JsonResponse({
+            'status': 'success',
+            'balance': float(current_balance),
+            'account_name': account.name,
+            'account_type': account.account_type  # এক্সট্রা তথ্য যুক্ত করা হলো
+        })
+    except Account.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Account not found'
+        }, status=404)

@@ -16,7 +16,7 @@
         --border-color: #e2e8f0;
         --text-muted: #64748b;
         --success: #16a34a;
-        --error: #e41c1cff;
+        --error: #dc2626;
         --warning: #f97316;
         --info: #2563eb;
     }
@@ -109,6 +109,38 @@
     }
     .memo-input:focus { border-color: var(--theme-primary); outline: none; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
 
+    /* ✅ Account Balance Display */
+    .account-balance-display {
+        font-size: 0.72rem;
+        color: #64748b;
+        font-weight: 600;
+        padding: 5px 10px;
+        margin-top: 6px;
+        background: #f1f5f9;
+        border-radius: 6px;
+        display: none;
+        border-left: 3px solid #16a34a;
+    }
+    .account-balance-display.show {
+        display: block;
+        animation: slideDown 0.2s ease-out;
+    }
+    .account-balance-display .balance-amount {
+        color: #16a34a;
+        font-weight: 700;
+        font-family: monospace;
+    }
+    .account-balance-display.negative {
+        border-left-color: #dc2626;
+    }
+    .account-balance-display.negative .balance-amount {
+        color: #dc2626;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     /* --- Buttons --- */
     .btn-new-account {
         background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25);
@@ -145,7 +177,7 @@
     .summary-box { background: var(--theme-dark); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 20px rgba(30, 41, 59, 0.15); position: relative; overflow: hidden; }
     .summary-box::before {
         content:""; position:absolute; width:200%; height:200%; top:-50%; left:-50%;
-        background: radial-gradient(circle, rgba(148,163,184,0.28) 0, transparent 60%);
+        background: radial-gradient(circle, rgba(148,163,184,0.28) 0%, transparent 60%);
         animation: spinGlow 12s linear infinite;
     }
     @keyframes spinGlow {
@@ -172,9 +204,9 @@
     .shortcut-hint.show { opacity: 1; transform: translateY(0); }
     
     .kbd { 
-        background: #334155; padding: 3px 8px; border-radius: 4px; 
+        background: #8a8f8bff; padding: 3px 8px; border-radius: 4px; 
         font-family: monospace; font-size: 0.8rem; margin: 0 2px;
-        border: 1px solid #475569;
+        border: 1px solid #0c0e11ff;
     }
 
     /* Toasts */
@@ -275,12 +307,11 @@
             </div>
 
             <div class="card-body p-4 p-md-5">
-            {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} mb-4 rounded-3 shadow-sm border-0">{{ message|striptags }}</div>
-    {% endfor %}
-{% endif %}
-
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-4 rounded-3 shadow-sm border-0">{{ message|striptags }}</div>
+                    {% endfor %}
+                {% endif %}
 
                 <div class="row mb-3 align-items-end">
                     <div class="col-md-4">
@@ -308,45 +339,49 @@
                             </tr>
                         </thead>
                         <tbody id="formset-container">
-                          {% for line in formset %}
-    <tr class="row-card transaction-form" data-row-index="{{ forloop.counter0 }}">
-        <td style="display:none;">
-            {{ line.id }}
-            {{ line.journal }}
-        </td>
-        
-        <td>
-            <div class="p-1">
-                {{ line.account|add_class:"account-select" }}
-            </div>
-        </td>
-        <td>
-            <input type="text" 
-                   name="transactions-{{ forloop.counter0 }}-note" 
-                   class="memo-input" 
-                   placeholder="Optional note"
-                   value="{{ line.note.value|default:'' }}">
-        </td>
+                            {% for line in formset %}
+                            <tr class="row-card transaction-form" data-row-index="{{ forloop.counter0 }}">
+                                <td style="display:none;">
+                                    {{ line.id }}
+                                    {{ line.journal }}
+                                </td>
+                                
+                                <td>
+                                    <div class="p-1">
+                                        {{ line.account|add_class:"account-select" }}
+                                        <!-- ✅ Balance Display -->
+                                        <div class="account-balance-display" data-row="{{ forloop.counter0 }}">
+                                            <i class="bi bi-wallet2"></i> Current: <span class="balance-amount">0.00 ৳</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" 
+                                           name="transactions-{{ forloop.counter0 }}-note" 
+                                           class="memo-input" 
+                                           placeholder="Optional note"
+                                           value="{{ line.note.value|default:'' }}">
+                                </td>
 
-                                    <td>
-                                        <div class="input-group-modern">
-                                            <span class="currency-text">Tk.</span>
-                                            {{ line.debit|add_class:"amount-input debit"|attr:"placeholder:0.00" }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="input-group-modern">
-                                            <span class="currency-text">Tk.</span>
-                                            {{ line.credit|add_class:"amount-input credit"|attr:"placeholder:0.00" }}
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span style="display:none;">{{ line.DELETE }}</span>
-                                        <button type="button" class="btn-remove remove-form-row" tabindex="-1">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                <td>
+                                    <div class="input-group-modern">
+                                        <span class="currency-text">Tk.</span>
+                                        {{ line.debit|add_class:"amount-input debit"|attr:"placeholder:0.00" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group-modern">
+                                        <span class="currency-text">Tk.</span>
+                                        {{ line.credit|add_class:"amount-input credit"|attr:"placeholder:0.00" }}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span style="display:none;">{{ line.DELETE }}</span>
+                                    <button type="button" class="btn-remove remove-form-row" tabindex="-1">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -402,6 +437,10 @@
                     <td>
                         <div class="p-1">
                             {{ formset.empty_form.account|add_class:"account-select" }}
+                            <!-- ✅ Balance Display for Dynamic Rows -->
+                            <div class="account-balance-display">
+                                <i class="bi bi-wallet2"></i> Current: <span class="balance-amount">0.00 ৳</span>
+                            </div>
                         </div>
                     </td>
                     <td>
@@ -434,6 +473,7 @@
     </div>
 </div>
 
+<!-- Modal: Create Account -->
 <div class="modal fade" id="createAccountModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -464,6 +504,7 @@
   </div>
 </div>
 
+<!-- Modal: Shortcuts -->
 <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -521,7 +562,6 @@
     $(document).ready(function() {
         let currentRowIndex = 0;
         let toastIdCounter = 0;
-        // ✅ গ্লোবাল ভেরিয়েবল: এটি ট্র্যাক করবে কোন ড্রপডাউন থেকে মোডাল ওপেন হয়েছে
         let activeSelectElement = null;
 
         /* ---------- Toast helpers ---------- */
@@ -570,7 +610,6 @@
             $('.account-select').select2({ placeholder: "Select Account...", width: '100%' });
         }
 
-        // ✅ যখনই কোনো সিলেক্ট বক্স ওপেন হবে, আমরা সেটাকে 'activeSelectElement' হিসেবে সেভ করব
         $(document).on('select2:open', '.account-select', function() {
             activeSelectElement = $(this);
         });
@@ -581,9 +620,57 @@
             });
         }
 
+        /* ✅ ---------- Account Balance Display ---------- */
+        function fetchAndDisplayBalance(selectElement) {
+            const accountId = selectElement.val();
+            const row = selectElement.closest('tr');
+            const balanceDiv = row.find('.account-balance-display');
+            
+            if (!accountId) {
+                balanceDiv.removeClass('show');
+                return;
+            }
+            
+            $.ajax({
+                url: `/api/account/${accountId}/balance/`,
+                type: 'GET',
+                success: function(response) {
+                    const balance = parseFloat(response.balance || 0);
+                    const formatted = Math.abs(balance).toFixed(2);
+                    
+                    balanceDiv.find('.balance-amount').text(formatted + ' ৳');
+                    
+                    if (balance < 0) {
+                        balanceDiv.addClass('negative');
+                    } else {
+                        balanceDiv.removeClass('negative');
+                    }
+                    
+                    balanceDiv.addClass('show');
+                },
+                error: function() {
+                    balanceDiv.removeClass('show');
+                }
+            });
+        }
+
+        // ✅ Account পরিবর্তনের সময় Balance দেখান
+        $(document).on('change', '.account-select', function() {
+            fetchAndDisplayBalance($(this));
+        });
+
         initializeSelect2();
         clearZeroValues();
-        setTimeout(updateTotals, 300);
+        
+        // ✅ পেজ লোডের সময় যেসব account already selected আছে তাদের balance দেখান
+        setTimeout(function() {
+            $('.account-select').each(function() {
+                if ($(this).val()) {
+                    fetchAndDisplayBalance($(this));
+                }
+            });
+            updateTotals();
+        }, 300);
 
         /* ---------- Add / remove rows ---------- */
         $('#add-form-row').click(function() {
@@ -869,16 +956,15 @@
             const newRow = $($('#empty-form').html().replace(/__prefix__/g, idx));
 
             const account = row.find('.account-select').val();
-            const debit   = row.find('.debit').val();
-            const credit  = row.find('.credit').val();
-            const memo    = row.find('.memo-input').val();
+            const debit = row.find('.debit').val();
+            const credit = row.find('.credit').val();
+            const memo = row.find('.memo-input').val();
 
             newRow.attr('data-row-index', idx);
             row.after(newRow);
-
             $('#id_transactions-TOTAL_FORMS').val(parseInt(idx) + 1);
-            initializeSelect2();
 
+            initializeSelect2();
             newRow.find('.account-select').val(account).trigger('change');
             newRow.find('.debit').val(debit);
             newRow.find('.credit').val(credit);
@@ -894,28 +980,28 @@
         $('#save-account-btn').click(function() {
             const name = $('#new-account-name').val();
             const type = $('#new-account-type').val();
+
             if (!name) {
-                $('#modal-alert').text("Account name is required").removeClass('d-none');
+                $('#modal-alert').text('Account name is required.').removeClass('d-none');
                 showToast('error', 'Validation error', 'Please enter an account name.');
                 return;
             }
 
             $.ajax({
                 url: "{% url 'ajax-add-account' %}",
-                type: "POST",
+                type: 'POST',
                 data: JSON.stringify({name: name, account_type: type}),
-                contentType: "application/json",
+                contentType: 'application/json',
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 success: function(res) {
                     if (res.status === 'success') {
                         $('#createAccountModal').modal('hide');
                         $('#new-account-name').val('');
                         $('#modal-alert').addClass('d-none');
-                        
-                        // ✅ FIX: সব লিস্টে অপশন এড হবে কিন্তু সিলেক্ট হবে না
-                        $('.account-select').append(new Option(res.name, res.id, false, false)).trigger('change.select2');
 
-                        // ✅ FIX: শুধু মাত্র কারেন্ট ফিল্ডে সিলেক্ট হবে (যদি ইউজার কোনো ফিল্ড থেকে ওপেন করে থাকে)
+                        $('.account-select').append(new Option(res.name, res.id, false, false)).trigger('change');
+                        $('.account-select').select2();
+
                         if (activeSelectElement) {
                             activeSelectElement.val(res.id).trigger('change');
                         }
@@ -928,7 +1014,7 @@
                     }
                 },
                 error: function() {
-                    $('#modal-alert').text('Error creating account').removeClass('d-none');
+                    $('#modal-alert').text('Error creating account.').removeClass('d-none');
                     showToast('error', 'Server error', 'Could not create account. Please try again.');
                 }
             });
@@ -942,4 +1028,4 @@
         });
     });
 </script>
-{% endblock content %}
+{% endblock %}

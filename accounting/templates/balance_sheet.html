@@ -119,6 +119,7 @@
         <div class="card-body p-0">
             <div class="row m-0">
                 
+                <!-- ASSETS COLUMN -->
                 <div class="col-md-6 p-0 border-end">
                     <h6 class="ps-3 pt-3 pb-2 fw-bold text-uppercase" style="color: #4f46e5;">Assets</h6>
                     <table class="table bs-table mb-0">
@@ -132,19 +133,19 @@
                             <tr><td colspan="2" class="text-center py-3 text-muted">No assets recorded.</td></tr>
                             {% endfor %}
                             
-                            <tr class="total-row fw-bold">
-                                <td class="ps-4">TOTAL ASSETS</td>
-                                <td class="amount-cell">{{ total_assets|floatformat:2 }}</td>
-                            </tr>
+                            <!-- FIXED PART STARTS HERE -->
                             <tr class="total-row">
-                                <td colspan="2" class="final-total">
+                                <td class="final-total ps-4">TOTAL ASSETS</td>
+                                <td class="final-total amount-cell">
                                     <h4 class="m-0 fw-bolder">{{ total_assets|floatformat:2 }}</h4>
                                 </td>
                             </tr>
+                            <!-- FIXED PART ENDS HERE -->
                         </tbody>
                     </table>
                 </div>
 
+                <!-- LIABILITIES & EQUITY COLUMN -->
                 <div class="col-md-6 p-0">
                     <h6 class="ps-3 pt-3 pb-2 fw-bold text-uppercase text-danger">Liabilities & Equity</h6>
                     <table class="table bs-table mb-0">

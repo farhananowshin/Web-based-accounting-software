@@ -38,6 +38,9 @@ urlpatterns = [
     # AJAX
     path('ajax/add-account/', accounting_views.create_account_ajax, name='ajax-add-account'),
 
+    # ✅ FIX: Balance API - accounting_views ব্যবহার করুন
+    path('api/account/<int:account_id>/balance/', accounting_views.account_balance_api, name='account-balance-api'),
+
     # Reports
     path('ledger/<int:account_id>/', accounting_views.ledger_view, name='ledger'),
     path('report/trial-balance/', accounting_views.trial_balance_view, name='trial-balance'),

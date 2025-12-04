@@ -1,130 +1,142 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
+<!-- ✅ CACHE BUSTER: এই লাইনটি যোগ করুন -->
+<style id="account-list-styles-v2">
     /* --- Page Specific Styles --- */
     .page-header {
-        background: #ffffff;
-        padding: 20px 30px;
-        border-radius: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        border: 1px solid #e2e8f0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
+        background: #ffffff !important;
+        padding: 16px 24px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
+        border: 1px solid #e2e8f0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 20px !important;
     }
 
-    /* Search Bar Styles */
+    /* Search Bar Styles - Optimized for Professional Look */
     .search-bar {
-        background: #ffffff;
-        padding: 18px 25px;
-        border-radius: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
+        background: #ffffff !important;
+        padding: 12px 16px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
+        border: 1px solid #e2e8f0 !important;
+        margin-bottom: 20px !important;
     }
 
     .search-bar .form-control {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 10px 18px;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 8px 14px !important;
+        font-size: 0.9rem !important; /* ✅ 14.4px */
+        height: 38px !important;
+        transition: all 0.2s ease !important;
     }
 
     .search-bar .form-control:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
     }
 
     .search-bar .btn-primary {
-        background-color: #2563eb;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 24px;
-        font-weight: 600;
+        background-color: #2563eb !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 16px !important;
+        font-size: 0.875rem !important; /* ✅ 14px */
+        font-weight: 600 !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .search-bar .btn-light {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 10px 20px;
-        font-weight: 600;
-        color: #64748b;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        height: 38px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .table-card {
-        background: #ffffff;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        overflow: hidden;
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+        overflow: hidden !important;
     }
 
     .table-modern th {
-        background-color: #f8fafc;
-        color: #64748b;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        padding: 15px 20px;
-        border-bottom: 1px solid #e2e8f0;
+        background-color: #f8fafc !important;
+        color: #64748b !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        padding: 12px 16px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
     }
 
     .table-modern td {
-        padding: 15px 20px;
-        vertical-align: middle;
-        color: #334155;
-        font-weight: 500;
-        border-bottom: 1px solid #f1f5f9;
+        padding: 12px 16px !important;
+        vertical-align: middle !important;
+        color: #334155 !important;
+        font-weight: 500 !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 0.9rem !important;
     }
 
-    .table-modern tr:last-child td { border-bottom: none; }
-    .table-modern tr:hover td { background-color: #f8fafc; }
+    .table-modern tr:last-child td { border-bottom: none !important; }
+    .table-modern tr:hover td { background-color: #f8fafc !important; }
 
     /* Badge Styles */
     .badge-soft {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        display: inline-block;
+        padding: 4px 10px !important;
+        border-radius: 20px !important;
+        font-size: 0.75rem !important; /* ✅ 12px */
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        display: inline-block !important;
     }
 
-    .badge-Asset { background: #dbeafe; color: #1e40af; }
-    .badge-Liability { background: #fee2e2; color: #991b1b; }
-    .badge-Equity { background: #f3e8ff; color: #6b21a8; }
-    .badge-Revenue { background: #dcfce7; color: #166534; }
-    .badge-Expense { background: #ffedd5; color: #9a3412; }
-    .badge-Other { background: #f3f4f6; color: #374151; }
+    .badge-Asset { background: #dbeafe !important; color: #1e40af !important; }
+    .badge-Liability { background: #fee2e2 !important; color: #991b1b !important; }
+    .badge-Equity { background: #f3e8ff !important; color: #6b21a8 !important; }
+    .badge-Revenue { background: #dcfce7 !important; color: #166534 !important; }
+    .badge-Expense { background: #ffedd5 !important; color: #9a3412 !important; }
+    .badge-Other { background: #f3f4f6 !important; color: #374151 !important; }
 
     /* ✅ Negative Balance Styling */
     .text-danger { color: #ef4444 !important; }
     .text-success { color: #10b981 !important; }
 
     .overdraft-badge {
-        font-size: 0.65rem;
-        padding: 2px 8px;
-        border-radius: 10px;
-        background: #fee2e2;
-        color: #991b1b;
-        font-weight: 700;
-        margin-left: 8px;
+        font-size: 0.7rem !important; /* ✅ 11.2px */
+        padding: 2px 8px !important;
+        border-radius: 10px !important;
+        background: #fee2e2 !important;
+        color: #991b1b !important;
+        font-weight: 700 !important;
+        margin-left: 8px !important;
     }
 </style>
 
 <div class="page-header">
     <div>
-        <h4 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px;">Chart of Accounts</h4>
-        <small class="text-muted">Manage all your financial heads</small>
+        <h4 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px !important; font-size: 1.5rem !important;">Chart of Accounts</h4>
+        <small class="text-muted" style="font-size: 0.85rem !important;">Manage all your financial heads</small>
     </div>
     <div class="d-flex gap-2">
-        <a href="{% url 'dashboard' %}" class="btn btn-light border fw-bold" style="color: #64748b;">
+        <a href="{% url 'dashboard' %}" class="btn btn-light border fw-bold btn-sm" style="color: #64748b !important; height: 38px !important; display: inline-flex !important; align-items: center !important; font-size: 0.875rem !important;">
             <i class="bi bi-arrow-left me-1"></i> Dashboard
         </a>
-        <a href="{% url 'account-add' %}" class="btn btn-primary fw-bold shadow-sm" style="background-color: #2563eb; border:none;">
+        <a href="{% url 'account-add' %}" class="btn btn-primary fw-bold shadow-sm btn-sm" style="background-color: #2563eb !important; border:none !important; height: 38px !important; display: inline-flex !important; align-items: center !important; font-size: 0.875rem !important;">
             <i class="bi bi-plus-lg me-1"></i> Add Account
         </a>
     </div>
@@ -156,7 +168,7 @@
     </form>
     {% if search_query %}
     <div class="mt-2 pt-2 border-top">
-        <small class="text-muted">
+        <small class="text-muted" style="font-size: 0.8rem !important;">
             {% if accounts %}
                 <i class="bi bi-info-circle me-1"></i> Found <strong>{{ accounts|length }}</strong> result(s) for "<strong>{{ search_query }}</strong>"
             {% else %}
@@ -175,14 +187,14 @@
                     <th>Account Name</th>
                     <th>Type</th>
                     <th class="text-end">Current Balance</th>
-                    <th class="text-end" style="width: 200px;">Actions</th>
+                    <th class="text-end" style="width: 180px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for account in accounts %}
                 <tr>
                     <td>
-                        <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{ account.name }}</span>
+                        <span class="fw-bold text-dark" style="font-size: 0.95rem !important;">{{ account.name }}</span>
                     </td>
                     <td>
                         <span class="badge-soft badge-{{ account.account_type }}">
@@ -190,30 +202,30 @@
                         </span>
                     </td>
                     
-                    <td class="text-end font-monospace fw-bold" style="font-size: 1rem;">
+                    <td class="text-end font-monospace fw-bold" style="font-size: 1rem !important;">
                         <span class="{% if account.is_negative %}text-danger{% else %}text-success{% endif %}">
                             {{ account.balance|floatformat:2 }} 
                             {% if company.currency_symbol %}{{ company.currency_symbol }}{% else %}৳{% endif %}
                         </span>
                         
                         {% if account.is_negative and account.account_type == "Asset" %}
-                        <span class="overdraft-badge">⚠️ Overdraft</span>
+                        <span class="overdraft-badge">Overdraft</span>
                         {% endif %}
                     </td>
                     
                     <td class="text-end">
-                        <a href="{% url 'ledger' account.id %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 me-1" style="font-size: 0.8rem;">
+                        <a href="{% url 'ledger' account.id %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 me-1" style="font-size: 0.8rem !important; padding: 4px 10px !important;">
                             Ledger
                         </a>
                         
-                        <a href="{% url 'account-edit' account.id %}" class="btn btn-sm btn-light border text-secondary rounded-circle me-1" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Edit">
-                            <i class="bi bi-pencil-square"></i>
+                        <a href="{% url 'account-edit' account.id %}" class="btn btn-sm btn-light border text-secondary rounded-circle me-1" style="width: 28px !important; height: 28px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;" title="Edit">
+                            <i class="bi bi-pencil-square" style="font-size: 0.85rem !important;"></i>
                         </a>
 
                         <form action="{% url 'account-delete' account.id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this account?');">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-light border text-danger rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Delete">
-                                <i class="bi bi-trash"></i>
+                            <button type="submit" class="btn btn-sm btn-light border text-danger rounded-circle" style="width: 28px !important; height: 28px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;" title="Delete">
+                                <i class="bi bi-trash" style="font-size: 0.85rem !important;"></i>
                             </button>
                         </form>
                     </td>
@@ -221,8 +233,8 @@
                 {% empty %}
                 <tr>
                     <td colspan="4" class="text-center py-5 text-muted">
-                        <i class="bi bi-{% if search_query %}search{% else %}folder2-open{% endif %} display-4 mb-3 d-block opacity-25"></i>
-                        <p class="mb-0 fw-medium">
+                        <i class="bi bi-{% if search_query %}search{% else %}folder2-open{% endif %} display-4 mb-3 d-block opacity-25" style="font-size: 2.5rem !important;"></i>
+                        <p class="mb-0 fw-medium" style="font-size: 0.95rem !important;">
                             {% if search_query %}
                                 No accounts found matching "{{ search_query }}".
                             {% else %}
