@@ -1,301 +1,372 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
+{% load static %}
 
 {% block content %}
+<!-- External Libraries -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <style>
-    /* --- Theme Variables --- */
-    :root {
-        --theme-dark: #1e293b;
-        --theme-primary: #4f46e5;
-        --bg-soft: #f8fafc;
-        --border-color: #e2e8f0;
-        --text-muted: #64748b;
-        --success: #16a34a;
-        --error: #dc2626;
-        --warning: #f97316;
-        --info: #2563eb;
-    }
-    body { background-color: var(--bg-soft); font-family: 'Inter', sans-serif; color: #334155; }
+/* =========================================
+   1. THEME VARIABLES
+   ========================================= */
+:root {
+    --theme-dark: #1e293b;
+    --theme-primary: #4f46e5;
+    --bg-soft: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --text-main: #334155;
+    --text-muted: #64748b;
+    --success: #16a34a;
+    --error: #dc2626;
+    --warning: #f97316;
+    --info: #2563eb;
+}
 
-    /* --- Card Styling --- */
-    .modern-card {
-        background: #ffffff; border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-        overflow: hidden; margin-bottom: 40px;
-        animation: fadeUp 0.4s ease-out;
-    }
-    .card-header-modern {
-        background-color: var(--theme-dark); padding: 20px 30px;
-        display: flex; justify-content: space-between; align-items: center;
-        border-bottom: 4px solid #334155;
-        position: relative;
-        overflow: hidden;
-    }
-    .card-header-modern::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(120deg, transparent, rgba(255,255,255,0.12), transparent);
-        transform: translateX(-100%);
-        animation: headerShimmer 4s infinite;
-    }
-    .header-title { font-size: 1.4rem; font-weight: 700; color: #fff; margin: 0; position: relative; z-index: 1; }
+/* DARK MODE OVERRIDES */
+[data-theme="dark"] {
+    --theme-dark: #0f172a;
+    --theme-primary: #6366f1;
+    --bg-soft: #0f172a;
+    --bg-card: #1e293b;
+    --border-color: #334155;
+    --text-main: #f1f5f9;      /* Text becomes White */
+    --text-muted: #94a3b8;     /* Muted text becomes Light Grey */
+}
 
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes headerShimmer {
-        0%   { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-    }
+/* THEME COLORS */
+[data-theme="green"] { --theme-primary: #059669; --theme-dark: #064e3b; }
+[data-theme="blue"] { --theme-primary: #0ea5e9; --theme-dark: #0c4a6e; }
+[data-theme="purple"] { --theme-primary: #7c3aed; --theme-dark: #4c1d95; }
 
-    /* --- Inputs --- */
-    .form-label-modern { 
-        font-size: 0.75rem; font-weight: 700; text-transform: uppercase; 
-        color: var(--text-muted); display: block; margin-bottom: 0.25rem; 
-    }
-    .form-control-modern {
-        border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px;
-        font-size: 0.95rem; width: 100%; transition: 0.2s; color: #334155;
-        background: #fff;
-    }
-    .form-control-modern:focus { border-color: var(--theme-primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); outline: none; transform: translateY(-1px); }
+body {
+    background-color: var(--bg-soft);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
 
-    /* --- Table --- */
-    .table-modern { 
-        width: 100%; border-collapse: separate; border-spacing: 0 6px;
-        margin-top: 0.5rem !important;
-    }
-    .table-modern th {
-        background-color: #f1f5f9; color: var(--theme-dark); font-size: 0.75rem;
-        font-weight: 700; text-transform: uppercase; padding: 12px; border-radius: 6px;
-        text-align: left;
-    }
-    .table-modern td {
-        text-align: left;
-    }
-    .row-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; transition: 0.2s; }
-    .row-card:hover { border-color: var(--theme-primary); transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,23,42,0.08); }
-    .row-card.focused { border-color: var(--theme-primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
-    .row-card.removing { opacity: 0; transform: translateX(-10px); transition: 0.15s ease-out; }
-    .row-card td { padding: 5px; vertical-align: middle; }
+/* =========================================
+   2. CARD & HEADER
+   ========================================= */
+.modern-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 40px;
+    animation: fadeUp 0.4s ease-out;
+}
 
-    /* --- Amount Input --- */
-    .input-group-modern {
-        display: flex; align-items: center; background: #fff;
-        border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 10px;
-        transition: 0.2s;
-    }
-    .input-group-modern:focus-within { border-color: var(--theme-primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-    
-    .currency-text { font-size: 0.8rem; color: #94a3b8; font-weight: 600; margin-right: 5px; user-select: none; }
-    
-    .amount-input { 
-        border: none; width: 100%; font-weight: 600; padding: 10px 0; 
-        outline: none; color: var(--theme-dark); text-align: right; 
-    }
-    .amount-input::placeholder { color: #e2e8f0; font-weight: 400; }
-    
-    .memo-input {
-        border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; width: 100%;
-        font-size: 0.85rem; color: #64748b; transition: 0.2s;
-    }
-    .memo-input:focus { border-color: var(--theme-primary); outline: none; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
+.card-header-modern {
+    background-color: var(--theme-dark);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
 
-    /* ✅ Account Balance Display */
-    .account-balance-display {
-        font-size: 0.72rem;
-        color: #64748b;
-        font-weight: 600;
-        padding: 5px 10px;
-        margin-top: 6px;
-        background: #f1f5f9;
-        border-radius: 6px;
-        display: none;
-        border-left: 3px solid #16a34a;
-    }
-    .account-balance-display.show {
-        display: block;
-        animation: slideDown 0.2s ease-out;
-    }
-    .account-balance-display .balance-amount {
-        color: #16a34a;
-        font-weight: 700;
-        font-family: monospace;
-    }
-    .account-balance-display.negative {
-        border-left-color: #dc2626;
-    }
-    .account-balance-display.negative .balance-amount {
-        color: #dc2626;
-    }
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-5px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+.card-header-modern::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: translateX(-100%);
+    animation: headerShimmer 4s infinite;
+}
 
-    /* --- Buttons --- */
-    .btn-new-account {
-        background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25);
-        padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;
-        transition: 0.2s; display: flex; align-items: center; gap: 6px;
-    }
-    .btn-new-account:hover { background: white; color: var(--theme-dark); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(15,23,42,0.25); }
+.header-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
 
-    .btn-auto-balance {
-        background: #f1f5f9; color: var(--theme-dark); border: 1px solid #cbd5e1;
-        padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.8rem;
-        transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn-auto-balance:hover { 
-        background: var(--theme-primary); color: white; 
-        transform: translateY(-1px); box-shadow: 0 4px 10px rgba(79,70,229,0.25); 
-    }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes headerShimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-    .btn-save { background: var(--theme-primary); color: white; font-weight: 700; padding: 14px; border-radius: 8px; border: none; width: 100%; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 6px 14px rgba(79,70,229,0.35); }
-    .btn-save:hover { background-color: #4338ca; transform: translateY(-2px); }
-    .btn-save:active { transform: translateY(0); box-shadow: 0 3px 8px rgba(79,70,229,0.25); }
-    .btn-save:disabled { background-color: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+/* =========================================
+   3. FORM INPUTS & TABLE
+   ========================================= */
+.form-label-modern {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.25rem;
+}
 
-    .btn-draft { background: white; border: 2px solid #e2e8f0; color: #64748b; font-weight: 700; padding: 14px; border-radius: 8px; width: 100%; transition: 0.2s; }
-    .btn-draft:hover { border-color: var(--theme-dark); color: var(--theme-dark); transform: translateY(-2px); }
+.form-control-modern {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    width: 100%;
+    transition: 0.2s;
+    color: var(--text-main);
+    background: var(--bg-card);
+}
 
-    .btn-add-line { background: #f8fafc; border: 2px dashed #cbd5e1; color: var(--theme-primary); font-weight: 700; padding: 12px; width: 100%; border-radius: 8px; transition: 0.2s; cursor: pointer; }
-    .btn-add-line:hover { background: #eff6ff; border-color: var(--theme-primary); transform: translateY(-2px); }
+.form-control-modern:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    outline: none;
+}
 
-    .btn-remove { width: 32px; height: 32px; border-radius: 6px; background: #fee2e2; color: #dc2626; border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-    .btn-remove:hover { background: #dc2626; color: white; transform: rotate(90deg) scale(1.05); }
+.table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    margin-top: 0.5rem !important;
+}
 
-    /* --- Summary & Status --- */
-    .summary-box { background: var(--theme-dark); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 20px rgba(30, 41, 59, 0.15); position: relative; overflow: hidden; }
-    .summary-box::before {
-        content:""; position:absolute; width:200%; height:200%; top:-50%; left:-50%;
-        background: radial-gradient(circle, rgba(148,163,184,0.28) 0%, transparent 60%);
-        animation: spinGlow 12s linear infinite;
-    }
-    @keyframes spinGlow {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .summary-label { font-size: 0.7rem; text-transform: uppercase; opacity: 0.8; font-weight: 700; letter-spacing: 0.5px; position:relative; z-index:1; }
-    .summary-value { font-size: 1.6rem; font-weight: 700; font-family: monospace; margin-top: 3px; position:relative; z-index:1; }
-    .status-pill { padding: 6px 16px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; position:relative; z-index:1; }
-    .status-balanced { background: #dcfce7; color: #166534; animation: pulseBalanced 1.8s infinite; }
-    .status-unbalanced { background: #fee2e2; color: #991b1b; }
-    @keyframes pulseBalanced {
-        0%,100%{ transform: scale(1); }
-        50%{ transform: scale(1.05); }
-    }
+.table-modern th {
+    background-color: var(--bg-soft);
+    color: var(--text-muted); /* Changed from theme-dark to text-muted for visibility */
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: left;
+}
 
-    /* Keyboard Shortcut Indicator */
-    .shortcut-hint {
-        position: fixed; bottom: 20px; right: 20px; background: var(--theme-dark);
-        color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.85rem;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px);
-        transition: 0.25s; pointer-events: none; z-index: 1100;
-    }
-    .shortcut-hint.show { opacity: 1; transform: translateY(0); }
-    
-    .kbd { 
-        background: #8a8f8bff; padding: 3px 8px; border-radius: 4px; 
-        font-family: monospace; font-size: 0.8rem; margin: 0 2px;
-        border: 1px solid #0c0e11ff;
-    }
+.row-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: 0.2s;
+}
 
-    /* Toasts */
-    .toast-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1200;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .toast {
-        min-width: 260px;
-        max-width: 360px;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 8px 24px rgba(15,23,42,0.18);
-        padding: 10px 14px;
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        border-left: 4px solid #e5e7eb;
-        animation: toastIn 0.25s ease-out;
-    }
-    .toast-out { animation: toastOut 0.2s ease-in forwards; }
-    .toast-icon {
-        width: 26px; height: 26px; border-radius: 999px;
-        display:flex; align-items:center; justify-content:center;
-        color:#fff; flex-shrink:0; font-size:0.95rem;
-    }
-    .toast-body { font-size: 0.85rem; color: #475569; }
-    .toast-title { font-weight: 700; color: #0f172a; margin-bottom: 2px; }
-    .toast-close {
-        margin-left:auto; border:none; background:none; color:#9ca3af;
-        cursor:pointer; font-size:1rem;
-    }
+.row-card:hover {
+    border-color: var(--theme-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+}
 
-    .toast-success { border-left-color: var(--success); background:#f0fdf4; }
-    .toast-success .toast-icon { background: var(--success); }
-    .toast-error { border-left-color: var(--error); background:#fef2f2; }
-    .toast-error .toast-icon { background: var(--error); }
-    .toast-warning { border-left-color: var(--warning); background:#fffbeb; }
-    .toast-warning .toast-icon { background: var(--warning); }
-    .toast-info { border-left-color: var(--info); background:#eff6ff; }
-    .toast-info .toast-icon { background: var(--info); }
+.row-card.focused {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
 
-    @keyframes toastIn {
-        from { opacity:0; transform: translateX(20px); }
-        to   { opacity:1; transform: translateX(0); }
-    }
-    @keyframes toastOut {
-        from { opacity:1; transform: translateX(0); }
-        to   { opacity:0; transform: translateX(20px); }
-    }
+.row-card.removing { opacity: 0; transform: translateX(-10px); transition: 0.15s ease-out; }
+.row-card td { padding: 5px; vertical-align: middle; }
 
-    /* Select2 Fix */
-    .select2-container { width: 100% !important; }
-    .select2-container .select2-selection--single { height: 42px !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; display: flex; align-items: center; background-color: #fff; }
-    .select2-selection__rendered { padding-left: 12px !important; color: #334155 !important; font-weight: 500; }
-    .select2-selection__arrow { height: 40px !important; }
+/* Amount Input Group */
+.input-group-modern {
+    display: flex; align-items: center; background: var(--bg-card);
+    border: 1px solid var(--border-color); border-radius: 8px; padding: 0 10px; transition: 0.2s;
+}
+.input-group-modern:focus-within { border-color: var(--theme-primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-    @media(max-width:768px){
-        .kbd{display:none;}
-    }
+.currency-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-right: 5px; user-select: none; }
+
+.amount-input {
+    border: none; width: 100%; font-weight: 600; padding: 10px 0;
+    outline: none; color: var(--text-main); background: transparent; text-align: right;
+}
+.amount-input::placeholder { color: var(--border-color); font-weight: 400; }
+
+.memo-input {
+    border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;
+    width: 100%; font-size: 0.85rem; color: var(--text-main); background: var(--bg-card); transition: 0.2s;
+}
+.memo-input:focus { border-color: var(--theme-primary); outline: none; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
+
+/* =========================================
+   4. ACCOUNT BALANCE DISPLAY
+   ========================================= */
+.account-balance-display {
+    font-size: 0.72rem; color: var(--text-muted); font-weight: 600;
+    padding: 5px 10px; margin-top: 6px; background: var(--bg-soft);
+    border-radius: 6px; display: none; border-left: 3px solid var(--success);
+}
+.account-balance-display.show { display: block; animation: slideDown 0.2s ease-out; }
+.account-balance-display .balance-amount { color: var(--success); font-weight: 700; font-family: monospace; }
+.account-balance-display.negative { border-left-color: var(--error); }
+.account-balance-display.negative .balance-amount { color: var(--error); }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   5. BUTTONS & SUMMARY
+   ========================================= */
+.btn-new-account {
+    background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25);
+    padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;
+    transition: 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.btn-new-account:hover { background: white; color: var(--theme-dark); transform: translateY(-1px); }
+
+.btn-auto-balance {
+    background: var(--bg-soft); color: var(--theme-dark); border: 1px solid var(--border-color);
+    padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.8rem;
+    transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-auto-balance:hover { background: var(--theme-primary); color: white; transform: translateY(-1px); }
+
+.btn-save {
+    background: var(--theme-primary); color: white; font-weight: 700; padding: 14px;
+    border-radius: 8px; border: none; width: 100%; transition: 0.2s;
+    text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 6px 14px rgba(79,70,229,0.35);
+}
+.btn-save:hover { background-color: #4338ca; transform: translateY(-2px); }
+.btn-save:disabled { background-color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-draft {
+    background: var(--bg-card); border: 2px solid var(--border-color); color: var(--text-muted);
+    font-weight: 700; padding: 14px; border-radius: 8px; width: 100%; transition: 0.2s;
+}
+.btn-draft:hover { border-color: var(--theme-dark); color: var(--theme-dark); transform: translateY(-2px); }
+
+.btn-add-line {
+    background: var(--bg-soft); border: 2px dashed var(--border-color); color: var(--theme-primary);
+    font-weight: 700; padding: 12px; width: 100%; border-radius: 8px; transition: 0.2s; cursor: pointer;
+}
+.btn-add-line:hover { background: #eff6ff; border-color: var(--theme-primary); transform: translateY(-2px); }
+
+.btn-remove {
+    width: 32px; height: 32px; border-radius: 6px; background: #fee2e2; color: var(--error);
+    border: none; display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.btn-remove:hover { background: var(--error); color: white; transform: rotate(90deg) scale(1.05); }
+
+/* Summary Box */
+.summary-box {
+    background: var(--theme-dark); color: white; padding: 20px; border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(30, 41, 59, 0.15); position: relative; overflow: hidden;
+}
+.summary-box::before {
+    content: ""; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+    background: radial-gradient(circle, rgba(148,163,184,0.28) 0%, transparent 60%);
+    animation: spinGlow 12s linear infinite;
+}
+@keyframes spinGlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.summary-label { font-size: 0.7rem; text-transform: uppercase; opacity: 0.8; font-weight: 700; letter-spacing: 0.5px; position: relative; z-index: 1; }
+.summary-value { font-size: 1.6rem; font-weight: 700; font-family: monospace; margin-top: 3px; position: relative; z-index: 1; }
+.status-pill { padding: 6px 16px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; position: relative; z-index: 1; }
+.status-balanced { background: #dcfce7; color: #166534; animation: pulseBalanced 1.8s infinite; }
+.status-unbalanced { background: #fee2e2; color: #991b1b; }
+@keyframes pulseBalanced { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* =========================================
+   6. SHORTCUTS & TOASTS
+   ========================================= */
+.shortcut-hint {
+    position: fixed; bottom: 20px; right: 20px; background: var(--theme-dark); color: white;
+    padding: 12px 20px; border-radius: 8px; font-size: 0.85rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    opacity: 0; transform: translateY(10px); transition: 0.25s; pointer-events: none; z-index: 1100;
+}
+.shortcut-hint.show { opacity: 1; transform: translateY(0); }
+.kbd { background: #8a8f8bff; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-size: 0.8rem; margin: 0 2px; border: 1px solid #0c0e11ff; }
+
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+    min-width: 260px; max-width: 360px; background: var(--bg-card); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.18); padding: 10px 14px; display: flex; align-items: flex-start;
+    gap: 10px; border-left: 4px solid #e5e7eb; animation: toastIn 0.25s ease-out;
+}
+.toast-out { animation: toastOut 0.2s ease-in forwards; }
+.toast-icon { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; font-size: 0.95rem; }
+.toast-body { font-size: 0.85rem; color: var(--text-muted); }
+.toast-title { font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+.toast-close { margin-left: auto; border: none; background: none; color: #9ca3af; cursor: pointer; font-size: 1rem; }
+.toast-success { border-left-color: var(--success); background: #f0fdf4; } .toast-success .toast-icon { background: var(--success); }
+.toast-error { border-left-color: var(--error); background: #fef2f2; } .toast-error .toast-icon { background: var(--error); }
+.toast-warning { border-left-color: var(--warning); background: #fffbeb; } .toast-warning .toast-icon { background: var(--warning); }
+.toast-info { border-left-color: var(--info); background: #eff6ff; } .toast-info .toast-icon { background: var(--info); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
+
+/* Select2 Customization */
+.select2-container { width: 100% !important; }
+.select2-container .select2-selection--single {
+    height: 42px !important; border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important; display: flex; align-items: center; background-color: var(--bg-card) !important;
+}
+.select2-selection__rendered { padding-left: 12px !important; color: var(--text-main) !important; font-weight: 500; }
+.select2-selection__arrow { height: 40px !important; }
+.select2-dropdown { background-color: var(--bg-card) !important; border-color: var(--border-color) !important; }
+.select2-search__field { background-color: var(--bg-card) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
+.select2-results__option { color: var(--text-main) !important; }
+
+/* =========================================
+   🚨 DARK MODE CRITICAL FIXES 🚨
+   This section forces elements to be visible in dark mode
+   ========================================= */
+
+/* 1. Force Text Color for Table & Cards */
+[data-theme="dark"] .table-modern th,
+[data-theme="dark"] .table-modern td,
+[data-theme="dark"] .row-card td { color: #e2e8f0 !important; }
+
+/* 2. Force Inputs to be Dark with White Text */
+[data-theme="dark"] .form-control-modern,
+[data-theme="dark"] .amount-input,
+[data-theme="dark"] .memo-input {
+    color: #ffffff !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .amount-input::placeholder,
+[data-theme="dark"] .memo-input::placeholder { color: #64748b !important; }
+
+/* 3. Fix Select2 Dropdowns */
+[data-theme="dark"] .select2-container--default .select2-selection--single { background-color: #1e293b !important; border-color: #334155 !important; }
+[data-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered { color: #ffffff !important; }
+[data-theme="dark"] .select2-dropdown { background-color: #1e293b !important; border-color: #334155 !important; }
+[data-theme="dark"] .select2-results__option { color: #e2e8f0 !important; background-color: #1e293b !important; }
+[data-theme="dark"] .select2-results__option--highlighted[aria-selected] { background-color: #4f46e5 !important; color: #ffffff !important; }
+[data-theme="dark"] .select2-search__field { background-color: #0f172a !important; color: #ffffff !important; border-color: #334155 !important; }
+
+/* 4. Fix Labels & Headers */
+[data-theme="dark"] .currency-text { color: #94a3b8 !important; }
+[data-theme="dark"] .header-title { color: #ffffff !important; }
+[data-theme="dark"] .form-label-modern { color: #cbd5e1 !important; }
+[data-theme="dark"] .input-group-modern { background-color: #1e293b !important; border-color: #334155 !important; }
+[data-theme="dark"] .account-balance-display { background-color: #0f172a !important; color: #cbd5e1 !important; }
+[data-theme="dark"] .account-balance-display .balance-amount { color: #4ade80 !important; }
+[data-theme="dark"] .row-card:hover td, [data-theme="dark"] .row-card:hover .currency-text { color: #ffffff !important; }
+
+@media(max-width:768px) { .kbd { display: none; } }
 </style>
 
 <div class="container py-5">
+    <!-- Shortcut Toast -->
     <div id="shortcut-toast" class="shortcut-hint">
         <span id="shortcut-text"></span>
     </div>
 
+    <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
 
     <form method="POST" id="journalForm" enctype="multipart/form-data">
         {% csrf_token %}
         
         <div class="modern-card">
+            <!-- HEADER -->
             <div class="card-header-modern">
                 <div>
                     <h1 class="header-title">{{ title|default:"Edit Journal" }}</h1>
                     <span class="text-white-50 small" style="position:relative;z-index:1;">
-                        Double-entry accounting system 
+                        Double-entry accounting system
                         <button type="button" class="btn btn-sm btn-link text-white-50 p-0 ms-2" data-bs-toggle="modal" data-bs-target="#shortcutsModal">
-                            <i class="bi bi-keyboard"></i> Shortcuts (Ctrl+/)
+                            <i class="bi bi-keyboard"></i> Shortcuts (<span class="kbd">Ctrl</span>+<span class="kbd">?</span>)
                         </button>
                     </span>
                 </div>
-                
                 <div class="d-flex align-items-center gap-2" style="position:relative;z-index:1;">
                     <button type="button" class="btn-new-account" data-bs-toggle="modal" data-bs-target="#createAccountModal">
                         <i class="bi bi-plus-circle-fill"></i> New Account
@@ -307,12 +378,16 @@
             </div>
 
             <div class="card-body p-4 p-md-5">
+                <!-- MESSAGES -->
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} mb-4 rounded-3 shadow-sm border-0">{{ message|striptags }}</div>
+                    <div class="alert alert-{{ message.tags }} mb-4 rounded-3 shadow-sm border-0">
+                        {{ message|striptags }}
+                    </div>
                     {% endfor %}
                 {% endif %}
 
+                <!-- DATE -->
                 <div class="row mb-3 align-items-end">
                     <div class="col-md-4">
                         <label class="form-label-modern">Transaction Date</label>
@@ -327,6 +402,7 @@
 
                 {{ formset.management_form }}
 
+                <!-- TABLE -->
                 <div class="table-responsive">
                     <table class="table-modern">
                         <thead>
@@ -341,28 +417,18 @@
                         <tbody id="formset-container">
                             {% for line in formset %}
                             <tr class="row-card transaction-form" data-row-index="{{ forloop.counter0 }}">
-                                <td style="display:none;">
-                                    {{ line.id }}
-                                    {{ line.journal }}
-                                </td>
-                                
+                                <td style="display:none;">{{ line.id }}{{ line.journal }}</td>
                                 <td>
                                     <div class="p-1">
                                         {{ line.account|add_class:"account-select" }}
-                                        <!-- ✅ Balance Display -->
                                         <div class="account-balance-display" data-row="{{ forloop.counter0 }}">
-                                            <i class="bi bi-wallet2"></i> Current: <span class="balance-amount">0.00 ৳</span>
+                                            <i class="bi bi-wallet2"></i> Current: <span class="balance-amount">0.00</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" 
-                                           name="transactions-{{ forloop.counter0 }}-note" 
-                                           class="memo-input" 
-                                           placeholder="Optional note"
-                                           value="{{ line.note.value|default:'' }}">
+                                    <input type="text" name="transactions-{{ forloop.counter0 }}-note" class="memo-input" placeholder="Optional note" value="{{ line.note.value|default:'' }}">
                                 </td>
-
                                 <td>
                                     <div class="input-group-modern">
                                         <span class="currency-text">Tk.</span>
@@ -391,6 +457,7 @@
                     <i class="bi bi-plus-circle me-2"></i> Add Another Line
                 </button>
 
+                <!-- SUMMARY & BUTTONS -->
                 <div class="row mt-5 align-items-center">
                     <div class="col-md-5 order-md-2 mb-4 mb-md-0">
                         <div class="summary-box">
@@ -429,7 +496,8 @@
             </div>
         </div>
     </form>
-    
+
+    <!-- EMPTY TEMPLATE -->
     <div style="display:none;">
         <table>
             <tbody id="empty-form">
@@ -437,17 +505,13 @@
                     <td>
                         <div class="p-1">
                             {{ formset.empty_form.account|add_class:"account-select" }}
-                            <!-- ✅ Balance Display for Dynamic Rows -->
                             <div class="account-balance-display">
-                                <i class="bi bi-wallet2"></i> Current: <span class="balance-amount">0.00 ৳</span>
+                                <i class="bi bi-wallet2"></i> Current: <span class="balance-amount">0.00</span>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <input type="text" 
-                               name="transactions-__prefix__-note" 
-                               class="memo-input" 
-                               placeholder="Optional note">
+                        <input type="text" name="transactions-__prefix__-note" class="memo-input" placeholder="Optional note">
                     </td>
                     <td>
                         <div class="input-group-modern">
@@ -475,557 +539,276 @@
 
 <!-- Modal: Create Account -->
 <div class="modal fade" id="createAccountModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg rounded-4">
-      <div class="modal-header text-white" style="background-color: var(--theme-dark);">
-        <h5 class="modal-title fw-bold">Create New Account</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div id="modal-alert" class="alert alert-danger d-none small"></div>
-        <div class="mb-3">
-            <label class="form-label-modern">Account Name</label>
-            <input type="text" id="new-account-name" class="form-control-modern" placeholder="e.g. Transport Cost">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header text-white" style="background-color: var(--theme-dark);">
+                <h5 class="modal-title fw-bold">Create New Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="modal-alert" class="alert alert-danger d-none small"></div>
+                <div class="mb-3">
+                    <label class="form-label-modern">Account Name</label>
+                    <input type="text" id="new-account-name" class="form-control-modern" placeholder="e.g. Transport Cost">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label-modern">Account Type</label>
+                    <select id="new-account-type" class="form-control-modern">
+                        <option value="Asset">Asset</option>
+                        <option value="Liability">Liability</option>
+                        <option value="Equity">Equity</option>
+                        <option value="Revenue">Revenue</option>
+                        <option value="Expense">Expense</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <button type="button" id="save-account-btn" class="btn-save">Create Account</button>
+            </div>
         </div>
-        <div class="mb-4">
-            <label class="form-label-modern">Account Type</label>
-            <select id="new-account-type" class="form-control-modern">
-                <option value="Asset">Asset</option>
-                <option value="Liability">Liability</option>
-                <option value="Equity">Equity</option>
-                <option value="Revenue">Revenue</option>
-                <option value="Expense">Expense</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
-        <button type="button" id="save-account-btn" class="btn-save">Create Account</button>
-      </div>
     </div>
-  </div>
 </div>
 
 <!-- Modal: Shortcuts -->
 <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content border-0 shadow-lg rounded-4">
-      <div class="modal-header text-white" style="background-color: var(--theme-dark);">
-        <h5 class="modal-title fw-bold"><i class="bi bi-keyboard me-2"></i>Keyboard Shortcuts</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-pencil-square me-2"></i>Entry Actions</h6>
-                <table class="table table-sm">
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></td><td>Post Entry</td></tr>
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">S</span></td><td>Save as Draft</td></tr>
-                    <tr><td><span class="kbd">Alt</span> + <span class="kbd">N</span></td><td>Add New Line</td></tr>
-                    <tr><td><span class="kbd">Alt</span> + <span class="kbd">B</span></td><td>Auto Balance</td></tr>
-                    <tr><td><span class="kbd">Escape</span></td><td>Clear Current Field</td></tr>
-                </table>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header text-white" style="background-color: var(--theme-dark);">
+                <h5 class="modal-title fw-bold"><i class="bi bi-keyboard me-2"></i>Keyboard Shortcuts</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="col-md-6">
-                <h6 class="fw-bold mb-3 text-success"><i class="bi bi-arrows-move me-2"></i>Navigation</h6>
-                <table class="table table-sm">
-                    <tr><td><span class="kbd">Tab</span></td><td>Next Field</td></tr>
-                    <tr><td><span class="kbd">Shift</span> + <span class="kbd">Tab</span></td><td>Previous Field</td></tr>
-                    <tr><td><span class="kbd">↑</span> / <span class="kbd">↓</span></td><td>Navigate Rows</td></tr>
-                    <tr><td><span class="kbd">Enter</span></td><td>Next Line (in amounts)</td></tr>
-                    <tr><td><span class="kbd">F2</span></td><td>Focus Date Field</td></tr>
-                </table>
-            </div>
-            <div class="col-md-6">
-                <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-trash me-2"></i>Row Actions</h6>
-                <table class="table table-sm">
-                    <tr><td><span class="kbd">Alt</span> + <span class="kbd">D</span></td><td>Delete Current Row</td></tr>
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">D</span></td><td>Duplicate Current Row</td></tr>
-                    <tr><td><span class="kbd">Alt</span> + <span class="kbd">↑</span></td><td>Move Row Up</td></tr>
-                    <tr><td><span class="kbd">Alt</span> + <span class="kbd">↓</span></td><td>Move Row Down</td></tr>
-                </table>
-            </div>
-            <div class="col-md-6">
-                <h6 class="fw-bold mb-3 text-info"><i class="bi bi-lightning me-2"></i>Quick Access</h6>
-                <table class="table table-sm">
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">/</span></td><td>Show Shortcuts</td></tr>
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">L</span></td><td>Go to List</td></tr>
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">N</span></td><td>New Account</td></tr>
-                    <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">K</span></td><td>Focus Account Search</td></tr>
-                </table>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-pencil-square me-2"></i>Entry Actions</h6>
+                        <table class="table table-sm">
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span></td><td>Post Entry</td></tr>
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">S</span></td><td>Save as Draft</td></tr>
+                            <tr><td><span class="kbd">Alt</span>+<span class="kbd">N</span></td><td>Add New Line</td></tr>
+                            <tr><td><span class="kbd">Alt</span>+<span class="kbd">B</span></td><td>Auto Balance</td></tr>
+                            <tr><td><span class="kbd">Escape</span></td><td>Clear Current Field</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3 text-success"><i class="bi bi-arrows-move me-2"></i>Navigation</h6>
+                        <table class="table table-sm">
+                            <tr><td><span class="kbd">Tab</span></td><td>Next Field</td></tr>
+                            <tr><td><span class="kbd">Shift</span>+<span class="kbd">Tab</span></td><td>Previous Field</td></tr>
+                            <tr><td><span class="kbd">↑</span> <span class="kbd">↓</span></td><td>Navigate Rows</td></tr>
+                            <tr><td><span class="kbd">Enter</span></td><td>Next Line (in amounts)</td></tr>
+                            <tr><td><span class="kbd">F2</span></td><td>Focus Date Field</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-trash me-2"></i>Row Actions</h6>
+                        <table class="table table-sm">
+                            <tr><td><span class="kbd">Alt</span>+<span class="kbd">D</span></td><td>Delete Current Row</td></tr>
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">D</span></td><td>Duplicate Current Row</td></tr>
+                            <tr><td><span class="kbd">Alt</span>+<span class="kbd">↑</span></td><td>Move Row Up</td></tr>
+                            <tr><td><span class="kbd">Alt</span>+<span class="kbd">↓</span></td><td>Move Row Down</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3 text-info"><i class="bi bi-lightning me-2"></i>Quick Access</h6>
+                        <table class="table table-sm">
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">?</span></td><td>Show Shortcuts</td></tr>
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">L</span></td><td>Go to List</td></tr>
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">N</span></td><td>New Account</td></tr>
+                            <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">K</span></td><td>Focus Account Search</td></tr>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
-    $(document).ready(function() {
-        let currentRowIndex = 0;
-        let toastIdCounter = 0;
-        let activeSelectElement = null;
+$(document).ready(function() {
+    let currentRowIndex = 0;
+    let toastIdCounter = 0;
+    let activeSelectElement = null;
 
-        /* ---------- Toast helpers ---------- */
-        function showToast(type, title, message, timeout=3500) {
-            const id = 'toast-' + (toastIdCounter++);
-            const icons = {
-                success: 'bi-check-circle-fill',
-                error:   'bi-x-circle-fill',
-                warning: 'bi-exclamation-triangle-fill',
-                info:    'bi-info-circle-fill',
-            };
-            const html = `
-                <div class="toast toast-${type}" id="${id}">
-                    <div class="toast-icon"><i class="bi ${icons[type]}"></i></div>
-                    <div class="toast-body">
-                        <div class="toast-title">${title}</div>
-                        <div>${message}</div>
-                    </div>
-                    <button type="button" class="toast-close" data-id="${id}"><i class="bi bi-x"></i></button>
-                </div>`;
-            $('#toast-container').append(html);
-            setTimeout(() => closeToast(id), timeout);
-        }
+    /* ========== Toast Helpers ========== */
+    function showToast(type, title, message, timeout=3500) {
+        const id = `toast-${toastIdCounter++}`;
+        const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill' };
+        const html = `
+            <div class="toast toast-${type}" id="${id}">
+                <div class="toast-icon"><i class="bi ${icons[type]}"></i></div>
+                <div class="toast-body">
+                    <div class="toast-title">${title}</div>
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="toast-close" data-id="${id}"><i class="bi bi-x"></i></button>
+            </div>
+        `;
+        $('#toast-container').append(html);
+        setTimeout(() => closeToast(id), timeout);
+    }
+    function closeToast(id) {
+        const $t = $(`#${id}`);
+        if (!$t.length) return;
+        $t.addClass('toast-out');
+        setTimeout(() => $t.remove(), 200);
+    }
+    $(document).on('click', '.toast-close', function() { closeToast($(this).data('id')); });
 
-        function closeToast(id) {
-            const $t = $('#' + id);
-            if (!$t.length) return;
-            $t.addClass('toast-out');
-            setTimeout(() => $t.remove(), 200);
-        }
+    /* ========== Shortcut Hint ========== */
+    function showShortcutHint(text) {
+        $('#shortcut-text').html(text);
+        $('#shortcut-toast').addClass('show');
+        setTimeout(() => $('#shortcut-toast').removeClass('show'), 2000);
+    }
 
-        $(document).on('click', '.toast-close', function() {
-            const id = $(this).data('id');
-            closeToast(id);
+    /* ========== Select2 & Calculations ========== */
+    function initializeSelect2() {
+        $('.account-select').select2({ placeholder: 'Select Account...', width: '100%' });
+    }
+    function clearZeroValues() {
+        $('.debit, .credit').each(function() { if (parseFloat($(this).val()) == 0) $(this).val(''); });
+    }
+    
+    function fetchAndDisplayBalance(selectElement) {
+        const accountId = $(selectElement).val();
+        const row = $(selectElement).closest('tr');
+        const balanceDiv = row.find('.account-balance-display');
+        if (!accountId) { balanceDiv.removeClass('show'); return; }
+
+        $.ajax({
+            url: `/api/account/${accountId}/balance/`,
+            type: 'GET',
+            success: function(response) {
+                const balance = parseFloat(response.balance) || 0;
+                balanceDiv.find('.balance-amount').text(Math.abs(balance).toFixed(2));
+                balanceDiv.toggleClass('negative', balance < 0).addClass('show');
+            },
+            error: function() { balanceDiv.removeClass('show'); }
         });
+    }
 
-        /* ---------- Shortcut hint ---------- */
-        function showShortcutHint(text) {
-            $('#shortcut-text').html(text);
-            $('#shortcut-toast').addClass('show');
-            setTimeout(() => $('#shortcut-toast').removeClass('show'), 2000);
-        }
+    $(document).on('change', '.account-select', function() { fetchAndDisplayBalance(this); });
+    initializeSelect2();
+    clearZeroValues();
+    setTimeout(() => {
+        $('.account-select').each(function() { if ($(this).val()) fetchAndDisplayBalance(this); });
+        updateTotals();
+    }, 300);
 
-        /* ---------- Select2 & initial ---------- */
-        function initializeSelect2() {
-            $('.account-select').select2({ placeholder: "Select Account...", width: '100%' });
-        }
+    /* ========== Add/Remove Rows ========== */
+    $('#add-form-row').click(function() { addNewRow(); });
+    function addNewRow() {
+        const idx = $('#id_transactions-TOTAL_FORMS').val();
+        const row = $('#empty-form').html().replace(/__prefix__/g, idx);
+        $('#formset-container').append(row);
+        $('#id_transactions-TOTAL_FORMS').val(parseInt(idx) + 1);
+        initializeSelect2(); updateTotals();
+        $('#formset-container tr:last .account-select').select2('open');
+        showShortcutHint('<i class="bi bi-plus-circle me-1"></i> New line added');
+    }
 
-        $(document).on('select2:open', '.account-select', function() {
-            activeSelectElement = $(this);
-        });
+    $(document).on('click', '.remove-form-row', function(e) {
+        e.preventDefault();
+        const row = $(this).closest('tr');
+        if ($('#formset-container tr').length === 1) { showToast('warning', 'Cannot delete', 'One line required.'); return; }
+        row.addClass('removing');
+        setTimeout(() => { row.remove(); updateTotals(); showShortcutHint('Row deleted'); }, 150);
+    });
 
-        function clearZeroValues() {
-            $('.debit, .credit').each(function() {
-                if (parseFloat($(this).val()) === 0) $(this).val('');
-            });
-        }
-
-        /* ✅ ---------- Account Balance Display ---------- */
-        function fetchAndDisplayBalance(selectElement) {
-            const accountId = selectElement.val();
-            const row = selectElement.closest('tr');
-            const balanceDiv = row.find('.account-balance-display');
-            
-            if (!accountId) {
-                balanceDiv.removeClass('show');
-                return;
-            }
-            
-            $.ajax({
-                url: `/api/account/${accountId}/balance/`,
-                type: 'GET',
-                success: function(response) {
-                    const balance = parseFloat(response.balance || 0);
-                    const formatted = Math.abs(balance).toFixed(2);
-                    
-                    balanceDiv.find('.balance-amount').text(formatted + ' ৳');
-                    
-                    if (balance < 0) {
-                        balanceDiv.addClass('negative');
-                    } else {
-                        balanceDiv.removeClass('negative');
-                    }
-                    
-                    balanceDiv.addClass('show');
-                },
-                error: function() {
-                    balanceDiv.removeClass('show');
-                }
-            });
-        }
-
-        // ✅ Account পরিবর্তনের সময় Balance দেখান
-        $(document).on('change', '.account-select', function() {
-            fetchAndDisplayBalance($(this));
-        });
-
-        initializeSelect2();
-        clearZeroValues();
+    /* ========== Totals ========== */
+    function updateTotals() {
+        let td = 0, tc = 0;
+        $('.debit').each(function() { const v = parseFloat($(this).val()); if (!isNaN(v)) td += v; });
+        $('.credit').each(function() { const v = parseFloat($(this).val()); if (!isNaN(v)) tc += v; });
+        $('#total-debit').text(td.toFixed(2)); $('#total-credit').text(tc.toFixed(2));
         
-        // ✅ পেজ লোডের সময় যেসব account already selected আছে তাদের balance দেখান
-        setTimeout(function() {
-            $('.account-select').each(function() {
-                if ($(this).val()) {
-                    fetchAndDisplayBalance($(this));
-                }
-            });
-            updateTotals();
-        }, 300);
-
-        /* ---------- Add / remove rows ---------- */
-        $('#add-form-row').click(function() {
-            addNewRow();
-        });
-
-        function addNewRow() {
-            const idx = $('#id_transactions-TOTAL_FORMS').val();
-            const row = $($('#empty-form').html().replace(/__prefix__/g, idx));
-            row.find('.debit, .credit').val('');
-            row.attr('data-row-index', idx);
-            $('#formset-container').append(row);
-            $('#id_transactions-TOTAL_FORMS').val(parseInt(idx) + 1);
-            initializeSelect2();
-            updateTotals();
-            row.find('.account-select').select2('open');
-            showShortcutHint('<i class="bi bi-plus-circle me-1"></i> New line added');
-            showToast('success', 'Line added', 'New transaction line created.');
+        const balanced = Math.abs(td - tc) < 0.01 && td > 0;
+        const status = $('#balance-status');
+        
+        if (balanced) {
+            status.html('<i class="bi bi-check-circle-fill me-1"></i> Balanced').removeClass('status-unbalanced').addClass('status-balanced');
+            $('#submit-btn').prop('disabled', false);
+        } else {
+            status.html('<i class="bi bi-x-circle-fill me-1"></i> Unbalanced').removeClass('status-balanced').addClass('status-unbalanced');
+            $('#submit-btn').prop('disabled', true);
         }
-
-        $(document).on('click', '.remove-form-row', function(e) {
-            e.preventDefault();
-            const rows = $('#formset-container tr');
-            const row  = $(this).closest('tr');
-            if (rows.length <= 1) {
-                showToast('warning', 'Cannot delete', 'At least one transaction line is required.');
-                return;
-            }
-            row.addClass('removing');
-            setTimeout(function() {
-                row.remove();
-                updateTotals();
-                showShortcutHint('<i class="bi bi-trash me-1"></i> Row deleted');
-                showToast('info', 'Row deleted', 'Transaction line removed.');
-            }, 150);
-        });
-
-        /* ---------- Totals & validation ---------- */
-        function updateTotals() {
-            let td = 0, tc = 0;
-            $('.debit').each(function() {
-                const v = parseFloat($(this).val());
-                if (!isNaN(v) && v > 0) td += v;
-            });
-            $('.credit').each(function() {
-                const v = parseFloat($(this).val());
-                if (!isNaN(v) && v > 0) tc += v;
-            });
-
-            $('#total-debit').text(td.toFixed(2));
-            $('#total-credit').text(tc.toFixed(2));
-
-            const diff = Math.abs(td - tc);
-            const status = $('#balance-status');
-            if (diff < 0.01 && td > 0 && tc > 0) {
-                status.html('<i class="bi bi-check-circle-fill me-1"></i> Balanced')
-                      .removeClass('status-unbalanced').addClass('status-balanced');
-                $('#submit-btn').prop('disabled', false);
-            } else {
-                status.html('<i class="bi bi-x-circle-fill me-1"></i> Unbalanced')
-                      .removeClass('status-balanced').addClass('status-unbalanced');
-                $('#submit-btn').prop('disabled', true);
-            }
-            $('#draft-btn').prop('disabled', false);
+        $('#draft-btn').prop('disabled', false);
+    }
+    $(document).on('input', '.debit, .credit', function() {
+        if ($(this).val() > 0) {
+            const other = $(this).hasClass('debit') ? '.credit' : '.debit';
+            $(this).closest('tr').find(other).val('');
         }
+        updateTotals();
+    });
 
-        // One-side-only for each row
-        $(document).on('input', '.debit, .credit', function() {
-            const val = $(this).val();
-            const row = $(this).closest('tr');
-
-            if ($(this).hasClass('debit') && val > 0) {
-                row.find('.credit').val('');
-            } else if ($(this).hasClass('credit') && val > 0) {
-                row.find('.debit').val('');
-            }
-            updateTotals();
-        });
-
-        /* ---------- Auto balance ---------- */
-        $('#auto-balance-btn').click(function() {
-            autoBalance();
-        });
-
-        function autoBalance() {
-            let td = 0, tc = 0;
-            $('.debit').each(function() { td += parseFloat($(this).val()) || 0; });
-            $('.credit').each(function() { tc += parseFloat($(this).val()) || 0; });
-
-            const diff = td - tc;
-            if (Math.abs(diff) <= 0.01) {
-                showToast('info', 'Already balanced', 'Total debit and credit are already equal.');
-                return;
-            }
-
-            let lastRow = $('#formset-container tr:last');
-            const lastDebit = parseFloat(lastRow.find('.debit').val()) || 0;
-            const lastCredit = parseFloat(lastRow.find('.credit').val()) || 0;
-
-            if (lastDebit !== 0 || lastCredit !== 0) {
-                addNewRow();
-                lastRow = $('#formset-container tr:last');
-            }
-
-            if (diff > 0) lastRow.find('.credit').val(diff.toFixed(2));
-            else          lastRow.find('.debit').val(Math.abs(diff).toFixed(2));
-
-            updateTotals();
-            showShortcutHint('<i class="bi bi-magic me-1"></i> Auto balanced');
-            showToast('success', 'Auto balanced', 'Difference adjusted on last line.');
+    /* ========== Auto Balance ========== */
+    $('#auto-balance-btn').click(function() {
+        let td = 0, tc = 0;
+        $('.debit').each(function() { td += parseFloat($(this).val()) || 0; });
+        $('.credit').each(function() { tc += parseFloat($(this).val()) || 0; });
+        const diff = td - tc;
+        
+        if (Math.abs(diff) < 0.01) { showToast('info', 'Balanced', 'Already balanced.'); return; }
+        
+        let lastRow = $('#formset-container tr:last');
+        if ((parseFloat(lastRow.find('.debit').val()) || 0) !== 0 || (parseFloat(lastRow.find('.credit').val()) || 0) !== 0) {
+            addNewRow(); lastRow = $('#formset-container tr:last');
         }
+        
+        if (diff > 0) lastRow.find('.credit').val(diff.toFixed(2));
+        else lastRow.find('.debit').val(Math.abs(diff).toFixed(2));
+        
+        updateTotals(); showShortcutHint('Auto balanced'); showToast('success', 'Auto balanced', 'Difference adjusted.');
+    });
 
-        /* ---------- Form submission ---------- */
-        function normalizeAmounts() {
-            $('.debit, .credit').each(function() {
-                let v = $(this).val().trim();
-                if (v === '' || isNaN(parseFloat(v))) {
-                    $(this).val('0');
-                }
-            });
+    /* ========== Form Submit ========== */
+    function normalizeAmounts() {
+        $('.debit, .credit').each(function() { if (!$(this).val()) $(this).val('0'); });
+    }
+    $('#submit-btn').click(function(e) {
+        normalizeAmounts();
+        const td = parseFloat($('#total-debit').text()) || 0;
+        const tc = parseFloat($('#total-credit').text()) || 0;
+        if (Math.abs(td - tc) > 0.01) {
+            e.preventDefault(); showToast('error', 'Unbalanced', 'Cannot post unbalanced entry.'); return false;
         }
+        showToast('info', 'Posting...', 'Saving entry...');
+    });
+    $('#draft-btn').click(function() { normalizeAmounts(); showToast('info', 'Saving draft...', 'Saving...'); });
 
-        function isBalancedForPost() {
-            const td = parseFloat($('#total-debit').text()) || 0;
-            const tc = parseFloat($('#total-credit').text()) || 0;
-            const diff = Math.abs(td - tc);
-            return (diff < 0.01 && td > 0);
-        }
+    /* ========== Focus & Shortcuts ========== */
+    $(document).on('focus', '.amount-input, .account-select, .memo-input', function() {
+        $(this).closest('tr').addClass('focused').siblings().removeClass('focused');
+        currentRowIndex = $(this).closest('tr').index();
+    });
+    
+    $(document).on('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); $('#submit-btn').click(); }
+        if (e.ctrlKey && e.key === 's') { e.preventDefault(); $('#draft-btn').click(); }
+        if (e.altKey && e.key === 'n') { e.preventDefault(); addNewRow(); }
+        if (e.altKey && e.key === 'b') { e.preventDefault(); $('#auto-balance-btn').click(); }
+        if (e.ctrlKey && e.key === '?') { e.preventDefault(); $('#shortcutsModal').modal('show'); }
+        if (e.key === 'F2') { e.preventDefault(); $('input[name="date"]').focus(); }
+        if (e.ctrlKey && e.key === 'n') { e.preventDefault(); $('#createAccountModal').modal('show'); setTimeout(() => $('#new-account-name').focus(), 400); }
+    });
 
-        $('#submit-btn').click(function(e) {
-            normalizeAmounts();
-            if (!isBalancedForPost()) {
-                e.preventDefault();
-                showToast('error', 'Unbalanced entry', 'Total debit and credit must be equal before posting.');
-                return false;
-            }
-            showToast('info', 'Posting...', 'Saving journal entry. Please wait.');
-        });
-
-        $('#draft-btn').click(function() {
-            normalizeAmounts();
-            showToast('info', 'Saving draft...', 'Draft journal entry is being saved.');
-        });
-
-        /* ---------- Focus management ---------- */
-        $(document).on('focus', '.amount-input, .account-select, .memo-input', function() {
-            $(this).closest('tr').addClass('focused').siblings().removeClass('focused');
-            currentRowIndex = $(this).closest('tr').index();
-        });
-
-        /* ---------- Global keyboard shortcuts ---------- */
-        $(document).on('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                normalizeAmounts();
-                if (!isBalancedForPost()) {
-                    showToast('warning', 'Cannot post', 'Entry is not balanced yet.');
-                    return;
-                }
-                $('#submit-btn').click();
-                showShortcutHint('<i class="bi bi-check-circle me-1"></i> Posting entry...');
-            }
-
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                $('#draft-btn').click();
-                showShortcutHint('<i class="bi bi-floppy me-1"></i> Saving draft...');
-            }
-
-            if (e.altKey && e.key === 'n') {
-                e.preventDefault();
-                addNewRow();
-            }
-
-            if (e.altKey && e.key === 'b') {
-                e.preventDefault();
-                autoBalance();
-            }
-
-            if (e.ctrlKey && e.key === '/') {
-                e.preventDefault();
-                $('#shortcutsModal').modal('show');
-            }
-
-            if (e.ctrlKey && e.key === 'l') {
-                e.preventDefault();
-                window.location.href = "{% url 'journal-list' %}";
-            }
-
-            if (e.ctrlKey && e.key === 'n') {
-                e.preventDefault();
-                $('#createAccountModal').modal('show');
-                setTimeout(() => $('#new-account-name').focus(), 400);
-            }
-
-            if (e.key === 'F2') {
-                e.preventDefault();
-                $('input[name="date"]').focus();
-                showShortcutHint('<i class="bi bi-calendar me-1"></i> Date focused');
-            }
-
-            if (e.ctrlKey && e.key === 'k') {
-                e.preventDefault();
-                $('.account-select').first().select2('open');
-            }
-        });
-
-        /* ---------- Row-specific shortcuts ---------- */
-        $(document).on('keydown', '.amount-input, .memo-input', function(e) {
-            const row = $(this).closest('tr');
-
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                let nextRow = row.next('tr');
-                if (!nextRow.length) {
-                    addNewRow();
-                    nextRow = $('#formset-container tr:last');
-                }
-                nextRow.find('.account-select').select2('open');
-            }
-
-            if (e.altKey && e.key === 'd') {
-                e.preventDefault();
-                row.find('.remove-form-row').click();
-            }
-
-            if (e.ctrlKey && e.key === 'd') {
-                e.preventDefault();
-                duplicateRow(row);
-            }
-
-            if (e.altKey && e.key === 'ArrowUp') {
-                e.preventDefault();
-                const prev = row.prev('tr');
-                if (prev.length) {
-                    row.insertBefore(prev);
-                    row.find('.account-select').select2('open');
-                    showShortcutHint('<i class="bi bi-arrow-up me-1"></i> Row moved up');
-                }
-            }
-
-            if (e.altKey && e.key === 'ArrowDown') {
-                e.preventDefault();
-                const next = row.next('tr');
-                if (next.length) {
-                    row.insertAfter(next);
-                    row.find('.account-select').select2('open');
-                    showShortcutHint('<i class="bi bi-arrow-down me-1"></i> Row moved down');
-                }
-            }
-
-            if (e.key === 'Escape') {
-                $(this).val('');
-                updateTotals();
-                showShortcutHint('<i class="bi bi-eraser me-1"></i> Field cleared');
-            }
-        });
-
-        $(document).on('keydown', '.amount-input', function(e) {
-            const row = $(this).closest('tr');
-            const isDebit = $(this).hasClass('debit');
-
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                const prev = row.prev('tr');
-                if (prev.length) {
-                    (isDebit ? prev.find('.debit') : prev.find('.credit')).focus();
-                }
-            }
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                const next = row.next('tr');
-                if (next.length) {
-                    (isDebit ? next.find('.debit') : next.find('.credit')).focus();
-                }
-            }
-        });
-
-        /* ---------- Duplicate row ---------- */
-        function duplicateRow(row) {
-            const idx = $('#id_transactions-TOTAL_FORMS').val();
-            const newRow = $($('#empty-form').html().replace(/__prefix__/g, idx));
-
-            const account = row.find('.account-select').val();
-            const debit = row.find('.debit').val();
-            const credit = row.find('.credit').val();
-            const memo = row.find('.memo-input').val();
-
-            newRow.attr('data-row-index', idx);
-            row.after(newRow);
-            $('#id_transactions-TOTAL_FORMS').val(parseInt(idx) + 1);
-
-            initializeSelect2();
-            newRow.find('.account-select').val(account).trigger('change');
-            newRow.find('.debit').val(debit);
-            newRow.find('.credit').val(credit);
-            newRow.find('.memo-input').val(memo);
-
-            updateTotals();
-            newRow.find('.account-select').select2('open');
-            showShortcutHint('<i class="bi bi-files me-1"></i> Row duplicated');
-            showToast('success', 'Row duplicated', 'New line created with same values.');
-        }
-
-        /* ---------- AJAX Create account ---------- */
-        $('#save-account-btn').click(function() {
-            const name = $('#new-account-name').val();
-            const type = $('#new-account-type').val();
-
-            if (!name) {
-                $('#modal-alert').text('Account name is required.').removeClass('d-none');
-                showToast('error', 'Validation error', 'Please enter an account name.');
-                return;
-            }
-
-            $.ajax({
-                url: "{% url 'ajax-add-account' %}",
-                type: 'POST',
-                data: JSON.stringify({name: name, account_type: type}),
-                contentType: 'application/json',
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                success: function(res) {
-                    if (res.status === 'success') {
-                        $('#createAccountModal').modal('hide');
-                        $('#new-account-name').val('');
-                        $('#modal-alert').addClass('d-none');
-
-                        $('.account-select').append(new Option(res.name, res.id, false, false)).trigger('change');
-                        $('.account-select').select2();
-
-                        if (activeSelectElement) {
-                            activeSelectElement.val(res.id).trigger('change');
-                        }
-
-                        showShortcutHint('<i class="bi bi-check-circle me-1"></i> Account created');
-                        showToast('success', 'Account created', res.name + ' added successfully.');
-                    } else {
-                        $('#modal-alert').text(res.message).removeClass('d-none');
-                        showToast('error', 'Error', res.message);
-                    }
-                },
-                error: function() {
-                    $('#modal-alert').text('Error creating account.').removeClass('d-none');
-                    showToast('error', 'Server error', 'Could not create account. Please try again.');
-                }
-            });
-        });
-
-        $('#new-account-name').keydown(function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                $('#save-account-btn').click();
+    /* ========== Create Account AJAX ========== */
+    $('#save-account-btn').click(function() {
+        const name = $('#new-account-name').val();
+        if (!name) { showToast('error', 'Error', 'Name required.'); return; }
+        $.ajax({
+            url: "{% url 'ajax-add-account' %}", type: 'POST',
+            data: JSON.stringify({ name: name, account_type: $('#new-account-type').val() }),
+            contentType: 'application/json', headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            success: function(res) {
+                if (res.status === 'success') {
+                    $('#createAccountModal').modal('hide'); $('#new-account-name').val('');
+                    $('.account-select').append(new Option(res.name, res.id, false, false)).trigger('change');
+                    showToast('success', 'Created', 'Account added.');
+                } else showToast('error', 'Error', res.message);
             }
         });
     });
+});
 </script>
 {% endblock %}

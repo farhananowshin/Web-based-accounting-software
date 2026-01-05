@@ -1,145 +1,425 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- ✅ CACHE BUSTER: এই লাইনটি যোগ করুন -->
-<style id="account-list-styles-v2">
-    /* --- Page Specific Styles --- */
-    .page-header {
-        background: #ffffff !important;
-        padding: 16px 24px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
-        border: 1px solid #e2e8f0 !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        margin-bottom: 20px !important;
+<style>
+    /* ========================================
+       CSS VARIABLES (THEME SUPPORT)
+    ======================================== */
+    :root {
+        --bg-card: #ffffff;
+        --border-color: #e5e7eb;
+        --dark-text: #111827;
+        --light-text: #6b7280;
+        --primary-color: #2563eb;
+        --danger-color: #ef4444;
     }
 
-    /* Search Bar Styles - Optimized for Professional Look */
+    /* DARK MODE VARIABLES */
+    [data-theme="dark"] {
+        --bg-card: #1e293b;
+        --border-color: #334155;
+        --dark-text: #f1f5f9;
+        --light-text: #94a3b8;
+        --primary-color: #3b82f6;
+        --danger-color: #ef4444;
+    }
+
+    /* GREEN THEME */
+    [data-theme="green"] {
+        --primary-color: #059669;
+    }
+
+    /* BLUE THEME */
+    [data-theme="blue"] {
+        --primary-color: #0ea5e9;
+    }
+
+    /* PURPLE THEME */
+    [data-theme="purple"] {
+        --primary-color: #7c3aed;
+    }
+
+    /* ========================================
+       PAGE HEADER
+    ======================================== */
+    .page-header {
+        background-color: var(--bg-card);
+        padding: 1.25rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        animation: fadeInDown 0.6s ease-out;
+    }
+    
+    .page-header h4 {
+        color: var(--dark-text);
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    
+    .page-header small {
+        color: var(--light-text);
+        font-size: 0.85rem;
+    }
+
+    /* ========================================
+       SEARCH BAR
+    ======================================== */
     .search-bar {
-        background: #ffffff !important;
-        padding: 12px 16px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02) !important;
-        border: 1px solid #e2e8f0 !important;
-        margin-bottom: 20px !important;
+        background-color: var(--bg-card);
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+        animation: slideInLeft 0.6s ease-out;
     }
 
     .search-bar .form-control {
-        border: 1px solid #e2e8f0 !important;
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+        border: 1px solid var(--border-color) !important;
         border-radius: 8px !important;
-        padding: 8px 14px !important;
-        font-size: 0.9rem !important; /* ✅ 14.4px */
+        padding: 0.625rem 1rem !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
         height: 38px !important;
         transition: all 0.2s ease !important;
     }
+    
+    .search-bar .form-control::placeholder {
+        color: var(--light-text) !important;
+        opacity: 0.6;
+    }
 
     .search-bar .form-control:focus {
-        border-color: #2563eb !important;
+        border-color: var(--primary-color) !important;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
     }
 
     .search-bar .btn-primary {
-        background-color: #2563eb !important;
+        background-color: var(--primary-color) !important;
         border: none !important;
         border-radius: 8px !important;
-        padding: 8px 16px !important;
-        font-size: 0.875rem !important; /* ✅ 14px */
+        padding: 0.625rem 1.25rem !important;
+        font-size: 0.875rem !important;
         font-weight: 600 !important;
         height: 38px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+        transition: all 0.3s ease;
+        color: white !important;
+    }
+    
+    .search-bar .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
     }
 
     .search-bar .btn-light {
-        border: 1px solid #e2e8f0 !important;
+        background-color: var(--bg-card) !important;
+        border: 1px solid var(--border-color) !important;
         border-radius: 8px !important;
-        padding: 8px 12px !important;
+        padding: 0.625rem 1rem !important;
         font-weight: 600 !important;
-        color: #64748b !important;
+        color: var(--light-text) !important;
         height: 38px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+        transition: all 0.3s ease;
+    }
+    
+    .search-bar .btn-light:hover {
+        background-color: var(--danger-color) !important;
+        color: white !important;
+        border-color: var(--danger-color) !important;
     }
 
+    /* ========================================
+       ADD BUTTON
+    ======================================== */
+    .btn-add {
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 700;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-add:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* ========================================
+       TABLE CARD
+    ======================================== */
     .table-card {
-        background: #ffffff !important;
-        border-radius: 12px !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
-        overflow: hidden !important;
+        background-color: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+        animation: fadeInUp 0.7s ease-out;
     }
 
     .table-modern th {
-        background-color: #f8fafc !important;
-        color: #64748b !important;
-        font-size: 0.75rem !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        padding: 12px 16px !important;
-        border-bottom: 1px solid #e2e8f0 !important;
+        background-color: var(--border-color);
+        color: var(--dark-text);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 0.875rem 1.25rem;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .table-modern td {
-        padding: 12px 16px !important;
-        vertical-align: middle !important;
-        color: #334155 !important;
-        font-weight: 500 !important;
-        border-bottom: 1px solid #f1f5f9 !important;
-        font-size: 0.9rem !important;
+        padding: 0.875rem 1.25rem;
+        vertical-align: middle;
+        color: var(--dark-text);
+        font-weight: 500;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.9rem;
+        background-color: var(--bg-card);
+        transition: all 0.3s ease;
     }
 
-    .table-modern tr:last-child td { border-bottom: none !important; }
-    .table-modern tr:hover td { background-color: #f8fafc !important; }
+    .table-modern tbody tr {
+        animation: fadeIn 0.5s ease-out backwards;
+    }
+    
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.15s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.2s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.25s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.3s; }
 
-    /* Badge Styles */
+    .table-modern tr:last-child td { 
+        border-bottom: none; 
+    }
+    
+    .table-modern tr:hover td { 
+        background-color: var(--border-color);
+    }
+
+    /* ========================================
+       BADGE STYLES (ORIGINAL COLORS)
+    ======================================== */
     .badge-soft {
-        padding: 4px 10px !important;
-        border-radius: 20px !important;
-        font-size: 0.75rem !important; /* ✅ 12px */
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        display: inline-block !important;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+    
+    .badge-soft:hover {
+        transform: scale(1.05);
     }
 
-    .badge-Asset { background: #dbeafe !important; color: #1e40af !important; }
-    .badge-Liability { background: #fee2e2 !important; color: #991b1b !important; }
-    .badge-Equity { background: #f3e8ff !important; color: #6b21a8 !important; }
-    .badge-Revenue { background: #dcfce7 !important; color: #166534 !important; }
-    .badge-Expense { background: #ffedd5 !important; color: #9a3412 !important; }
-    .badge-Other { background: #f3f4f6 !important; color: #374151 !important; }
+    .badge-Asset { 
+        background: #dbeafe !important; 
+        color: #1e40af !important; 
+    }
+    .badge-Liability { 
+        background: #fee2e2 !important; 
+        color: #991b1b !important; 
+    }
+    .badge-Equity { 
+        background: #f3e8ff !important; 
+        color: #6b21a8 !important; 
+    }
+    .badge-Revenue { 
+        background: #dcfce7 !important; 
+        color: #166534 !important; 
+    }
+    .badge-Expense { 
+        background: #ffedd5 !important; 
+        color: #9a3412 !important; 
+    }
+    .badge-Other { 
+        background: #f3f4f6 !important; 
+        color: #374151 !important; 
+    }
 
-    /* ✅ Negative Balance Styling */
-    .text-danger { color: #ef4444 !important; }
-    .text-success { color: #10b981 !important; }
+    /* ========================================
+       BALANCE STYLING
+    ======================================== */
+    .text-danger { 
+        color: #ef4444 !important; 
+    }
+    
+    .text-success { 
+        color: #10b981 !important; 
+    }
 
     .overdraft-badge {
-        font-size: 0.7rem !important; /* ✅ 11.2px */
-        padding: 2px 8px !important;
-        border-radius: 10px !important;
-        background: #fee2e2 !important;
-        color: #991b1b !important;
-        font-weight: 700 !important;
-        margin-left: 8px !important;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: #fee2e2;
+        color: #991b1b;
+        font-weight: 700;
+        margin-left: 8px;
+        display: inline-block;
+    }
+
+    /* ========================================
+       ACTION BUTTONS
+    ======================================== */
+    .btn-ledger {
+        background-color: transparent;
+        color: var(--primary-color);
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        border: 1px solid var(--primary-color);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-ledger:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-action-icon {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-card);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-edit-icon {
+        color: var(--light-text);
+    }
+    
+    .btn-edit-icon:hover {
+        background-color: var(--bg-card);
+        color: var(--dark-text);
+        border-color: var(--border-color);
+        transform: scale(1.1);
+    }
+    
+    .btn-delete-icon {
+        color: #dc2626;
+    }
+    
+    .btn-delete-icon:hover {
+        background-color: var(--bg-card);
+        color: #dc2626;
+        border-color: var(--border-color);
+        transform: scale(1.1);
+    }
+
+    /* ========================================
+       SEARCH RESULT INFO
+    ======================================== */
+    .search-info {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .search-info small {
+        color: var(--light-text);
+        font-size: 0.8rem;
+    }
+
+    /* ========================================
+       EMPTY STATE
+    ======================================== */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--light-text);
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.25;
+        margin-bottom: 1rem;
+    }
+
+    /* ========================================
+       ANIMATIONS
+    ======================================== */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 </style>
 
 <div class="page-header">
     <div>
-        <h4 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px !important; font-size: 1.5rem !important;">Chart of Accounts</h4>
-        <small class="text-muted" style="font-size: 0.85rem !important;">Manage all your financial heads</small>
+        <h4>Chart of Accounts</h4>
+        <small>Manage all your financial heads</small>
     </div>
-    <div class="d-flex gap-2">
-        <a href="{% url 'dashboard' %}" class="btn btn-light border fw-bold btn-sm" style="color: #64748b !important; height: 38px !important; display: inline-flex !important; align-items: center !important; font-size: 0.875rem !important;">
-            <i class="bi bi-arrow-left me-1"></i> Dashboard
-        </a>
-        <a href="{% url 'account-add' %}" class="btn btn-primary fw-bold shadow-sm btn-sm" style="background-color: #2563eb !important; border:none !important; height: 38px !important; display: inline-flex !important; align-items: center !important; font-size: 0.875rem !important;">
-            <i class="bi bi-plus-lg me-1"></i> Add Account
-        </a>
-    </div>
+    <a href="{% url 'account-add' %}" class="btn btn-add">
+        <i class="bi bi-plus-lg me-2"></i> Add Account
+    </a>
 </div>
 
 <div class="search-bar">
@@ -167,8 +447,8 @@
         </div>
     </form>
     {% if search_query %}
-    <div class="mt-2 pt-2 border-top">
-        <small class="text-muted" style="font-size: 0.8rem !important;">
+    <div class="search-info">
+        <small>
             {% if accounts %}
                 <i class="bi bi-info-circle me-1"></i> Found <strong>{{ accounts|length }}</strong> result(s) for "<strong>{{ search_query }}</strong>"
             {% else %}
@@ -194,7 +474,7 @@
                 {% for account in accounts %}
                 <tr>
                     <td>
-                        <span class="fw-bold text-dark" style="font-size: 0.95rem !important;">{{ account.name }}</span>
+                        <span class="fw-bold" style="font-size: 0.95rem;">{{ account.name }}</span>
                     </td>
                     <td>
                         <span class="badge-soft badge-{{ account.account_type }}">
@@ -202,7 +482,7 @@
                         </span>
                     </td>
                     
-                    <td class="text-end font-monospace fw-bold" style="font-size: 1rem !important;">
+                    <td class="text-end font-monospace fw-bold" style="font-size: 1rem;">
                         <span class="{% if account.is_negative %}text-danger{% else %}text-success{% endif %}">
                             {{ account.balance|floatformat:2 }} 
                             {% if company.currency_symbol %}{{ company.currency_symbol }}{% else %}৳{% endif %}
@@ -214,27 +494,27 @@
                     </td>
                     
                     <td class="text-end">
-                        <a href="{% url 'ledger' account.id %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 me-1" style="font-size: 0.8rem !important; padding: 4px 10px !important;">
+                        <a href="{% url 'ledger' account.id %}" class="btn btn-sm btn-ledger me-1">
                             Ledger
                         </a>
                         
-                        <a href="{% url 'account-edit' account.id %}" class="btn btn-sm btn-light border text-secondary rounded-circle me-1" style="width: 28px !important; height: 28px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;" title="Edit">
-                            <i class="bi bi-pencil-square" style="font-size: 0.85rem !important;"></i>
+                        <a href="{% url 'account-edit' account.id %}" class="btn btn-sm btn-action-icon btn-edit-icon me-1" title="Edit">
+                            <i class="bi bi-pencil-square" style="font-size: 0.85rem;"></i>
                         </a>
 
                         <form action="{% url 'account-delete' account.id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this account?');">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-light border text-danger rounded-circle" style="width: 28px !important; height: 28px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;" title="Delete">
-                                <i class="bi bi-trash" style="font-size: 0.85rem !important;"></i>
+                            <button type="submit" class="btn btn-sm btn-action-icon btn-delete-icon" title="Delete">
+                                <i class="bi bi-trash" style="font-size: 0.85rem;"></i>
                             </button>
                         </form>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-5 text-muted">
-                        <i class="bi bi-{% if search_query %}search{% else %}folder2-open{% endif %} display-4 mb-3 d-block opacity-25" style="font-size: 2.5rem !important;"></i>
-                        <p class="mb-0 fw-medium" style="font-size: 0.95rem !important;">
+                    <td colspan="4" class="empty-state">
+                        <i class="bi bi-{% if search_query %}search{% else %}folder2-open{% endif %}"></i>
+                        <p class="mb-0 fw-medium" style="font-size: 0.95rem;">
                             {% if search_query %}
                                 No accounts found matching "{{ search_query }}".
                             {% else %}

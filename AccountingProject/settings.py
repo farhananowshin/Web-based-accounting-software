@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =========================
 SECRET_KEY = "django-insecure-b^e@@7w7^b0fm6x-h#+2u3)34@ntw+&!rkyru)wzu+$%n@e5x2"
 DEBUG = True
-ALLOWED_HOSTS = []  # development এ ঠিক আছে
+ALLOWED_HOSTS = []  
 
 # =========================
 # INSTALLED APPS
@@ -120,7 +120,7 @@ USE_TZ = True
 # STATIC & MEDIA
 # =========================
 STATIC_URL = "static/"
-# STATICFILES_DIRS = [BASE_DIR / "static"]  # যখন static ফোল্ডার করবে, তখন uncomment করবে
+# STATICFILES_DIRS = [BASE_DIR / "static"]  
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
@@ -138,23 +138,16 @@ LOGOUT_REDIRECT_URL = "/login/"
 # =========================
 # EMAIL CONFIGURATION
 # =========================
-# Development: show emails in terminal (password reset link এখানেই আসবে)
+# Development: show emails in terminal 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Production (পরে ব্যবহার করবে – এখন কমেন্টেই থাক)
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = "sandbox.smtp.mailtrap.io"
-# EMAIL_PORT = 2525
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = "14a5c4e332f32a"
-# EMAIL_HOST_PASSWORD = "your-password"
-# DEFAULT_FROM_EMAIL = "AccuraERP <noreply@accuraerp.com>"
+
 
 # =========================
 # SESSION SETTINGS (Remember Me)
 # =========================
-SESSION_COOKIE_AGE = 1209600  # 2 weeks
-SESSION_COOKIE_SECURE = False  # production + HTTPS হলে True করবে
+SESSION_COOKIE_AGE = 1209600  
+SESSION_COOKIE_SECURE = False  
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
@@ -172,8 +165,8 @@ MESSAGE_TAGS = {
 # =========================
 # FILE UPLOAD LIMITS
 # =========================
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024 
 
 # =========================
 # LOGGING

@@ -1,20 +1,344 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+/* ========================================
+   DELETE CONFIRMATION - MULTI-THEME + ANIMATIONS
+======================================== */
+
+/* Page container */
+.delete-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: var(--bg-body);
+}
+
+/* Delete card */
+.delete-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border: 2px solid #ef4444;
+    max-width: 500px;
+    width: 100%;
+    overflow: hidden;
+    animation: slideInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header section */
+.delete-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.delete-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+}
+
+.delete-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    animation: pulseWarning 2s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
+
+.delete-header h2 {
+    color: white;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Body section */
+.delete-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.journal-info {
+    background: var(--border-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.journal-info-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--light-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.journal-info-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark-text);
+}
+
+.warning-message {
+    color: var(--light-text);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    animation: fadeInUp 0.6s ease-out 0.3s backwards;
+}
+
+.warning-message i {
+    color: #f59e0b;
+    margin-right: 5px;
+}
+
+/* Action buttons container */
+.action-buttons-container {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    animation: fadeInUp 0.6s ease-out 0.4s backwards;
+}
+
+/* Cancel button */
+.btn-cancel {
+    background: var(--bg-card);
+    color: var(--dark-text);
+    border: 2px solid var(--border-color);
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: var(--border-color);
+    color: var(--dark-text);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete button */
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: 2px solid #dc2626;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-delete::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-delete:hover::before {
+    opacity: 1;
+}
+
+.btn-delete span,
+.btn-delete i {
+    position: relative;
+    z-index: 1;
+}
+
+/* Theme-specific header colors */
+body[data-theme="light"] .delete-header {
+    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+}
+
+body[data-theme="dark"] .delete-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+body[data-theme="green"] .delete-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+body[data-theme="blue"] .delete-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+body[data-theme="purple"] .delete-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+}
+
+/* Animations */
+@keyframes slideInScale {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulseWarning {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .delete-card {
+        margin: 10px;
+    }
+    
+    .delete-header {
+        padding: 25px;
+    }
+    
+    .delete-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2rem;
+    }
+    
+    .delete-body {
+        padding: 25px;
+    }
+    
+    .action-buttons-container {
+        flex-direction: column;
+    }
+    
+    .btn-cancel,
+    .btn-delete {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center py-5">
-    <div class="col-md-5 text-center">
-        <div class="card shadow border-danger">
-            <div class="card-body p-5">
-                <h2 class="text-danger mb-3"><i class="bi bi-exclamation-circle"></i></h2>
-                <h4>Are you sure?</h4>
-                <p class="text-muted">You are about to delete Journal Entry #{{ journal.id }}. This cannot be undone.</p>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    <a href="{% url 'journal-list' %}" class="btn btn-light">Cancel</a>
-                    <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
-                </form>
+<div class="delete-container">
+    <div class="delete-card">
+        <!-- Header -->
+        <div class="delete-header">
+            <div class="delete-icon">
+                <i class="bi bi-exclamation-triangle"></i>
             </div>
+            <h2>Delete Journal Entry?</h2>
+        </div>
+
+        <!-- Body -->
+        <div class="delete-body">
+            <!-- Journal Info -->
+            <div class="journal-info">
+                <div class="journal-info-title">Journal Entry</div>
+                <div class="journal-info-value">#{{ journal.id }}</div>
+            </div>
+
+            <!-- Warning Message -->
+            <p class="warning-message">
+                <i class="bi bi-info-circle-fill"></i>
+                This action <strong>cannot be undone</strong>. All associated transactions and data will be permanently deleted.
+            </p>
+
+            <!-- Action Buttons -->
+            <form method="POST" id="deleteForm">
+                {% csrf_token %}
+                <div class="action-buttons-container">
+                    <a href="{% url 'journal-list' %}" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i>
+                        <span>Cancel</span>
+                    </a>
+                    <button type="submit" class="btn-delete">
+                        <i class="bi bi-trash"></i>
+                        <span>Yes, Delete</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteBtn = document.querySelector('.btn-delete');
+    
+    // Button click animation
+    deleteBtn.addEventListener('click', function(e) {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 150);
+    });
+    
+    // Enhanced hover effect on delete icon
+    const deleteIcon = document.querySelector('.delete-icon');
+    deleteIcon.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.1) rotate(5deg)';
+    });
+    
+    deleteIcon.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1) rotate(0deg)';
+    });
+});
+</script>
 {% endblock content %}

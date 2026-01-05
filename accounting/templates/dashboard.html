@@ -4,23 +4,11 @@
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-
 <style>
-    /* --- Dashboard Specific Styles --- */
-    :root {
-        --primary-color: #2563eb; /* Royal Blue */
-        --secondary-color: #64748b; /* Slate Gray */
-        --success-color: #10b981; /* Emerald Green */
-        --danger-color: #ef4444; /* Red */
-        --warning-color: #f59e0b; /* Amber */
-        --dark-text: #1e293b; /* Slate 800 */
-        --light-text: #94a3b8; /* Slate 400 */
-        --bg-card: #ffffff;
-        --border-color: #e2e8f0;
-    }
-
+    /* --- Dashboard Specific Styles (Theme-Aware) --- */
+    
     body {
-        background-color: #f1f5f9; /* Light Gray Background */
+        background-color: var(--bg-body);
     }
 
     /* Header Style */
@@ -53,7 +41,7 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
-    .kpi-title {
+    .kpi-title, .kpi-label {
         font-size: 0.85rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -79,11 +67,23 @@
         opacity: 0.15;
     }
     
-    .border-l-4 { border-left: 5px solid; }
-    .border-blue { border-color: var(--primary-color); }
-    .border-red { border-color: var(--danger-color); }
-    .border-green { border-color: var(--success-color); }
-    .border-orange { border-color: var(--warning-color); }
+    .border-l-4, .border-l-blue, .border-l-red, .border-l-green, .border-l-orange { 
+        border-left: 5px solid;
+    }
+    .border-l-blue, .border-blue { border-color: var(--primary-color); }
+    .border-l-red, .border-red { border-color: var(--danger-color); }
+    .border-l-green, .border-green { border-color: var(--success-color); }
+    .border-l-orange, .border-orange { border-color: var(--warning-color); }
+
+    /* Icon backgrounds */
+    .icon-bg {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.8rem;
+        opacity: 0.15;
+        color: var(--dark-text);
+    }
 
     /* Chart Section */
     .chart-card {
@@ -92,8 +92,9 @@
         padding: 25px;
         border: 1px solid var(--border-color);
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        height: 420px; /* Slightly taller for better view */
+        height: 420px;
     }
+    
     .section-heading {
         font-size: 1.1rem;
         font-weight: 700;
@@ -133,29 +134,100 @@
         top: 20px;
         right: 20px;
     }
-    /* Modern Tag Colors */
-    .tag-Asset { background: #dbeafe; color: #1e40af; }
-    .tag-Liability { background: #fee2e2; color: #dd42afff; }
-    .tag-Equity { background: #f3e8ff; color: #6b21a8; }
-    .tag-Revenue { background: #dcfce7; color: #166534; }
-    .tag-Expense { background: #ffedd5; color: #9a3412; }
+    
+    /* Theme-Aware Tag Colors */
+    .tag-Asset { 
+        background: var(--primary-color); 
+        color: white;
+        opacity: 0.9;
+    }
+    .tag-Liability { 
+        background: var(--danger-color); 
+        color: white;
+        opacity: 0.9;
+    }
+    .tag-Equity { 
+        background: var(--secondary-color); 
+        color: white;
+        opacity: 0.9;
+    }
+    .tag-Revenue { 
+        background: var(--success-color); 
+        color: white;
+        opacity: 0.9;
+    }
+    .tag-Expense { 
+        background: var(--warning-color); 
+        color: white;
+        opacity: 0.9;
+    }
 
-    .acc-balance {
+    .acc-balance, .acc-bal, .acc-name {
         font-size: 1.6rem;
         font-weight: 700;
         color: var(--dark-text);
         margin: 15px 0 5px 0;
-        font-family: 'Inter', monospace; /* Monospace for numbers alignment */
+        font-family: 'Inter', monospace;
+    }
+    
+    .acc-name {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
     }
 
     /* Buttons */
     .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
     }
     .btn-primary:hover {
-        background-color: #1d4ed8;
-        border-color: #1d4ed8;
+        opacity: 0.9;
+    }
+    
+    .btn-white {
+        background-color: var(--bg-card) !important;
+        color: var(--light-text) !important;
+    }
+    
+    /* Section headers */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+    }
+    
+    /* Dropdown */
+    .dropdown-menu {
+        background-color: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    .dropdown-item {
+        color: var(--dark-text) !important;
+    }
+    
+    .dropdown-item:hover {
+        background-color: var(--border-color) !important;
+    }
+    
+    .dropdown-divider {
+        border-color: var(--border-color) !important;
+    }
+    
+    /* Year filter */
+    .form-select, .form-select-sm {
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+        border-color: var(--border-color) !important;
     }
 </style>
 
@@ -169,8 +241,8 @@
              </div>
         {% endif %}
         <div>
-            <h4 class="fw-bold text-dark m-0" style="letter-spacing: -0.5px;">{{ SITE_NAME }} Dashboard</h4>
-            <small class="text-muted fw-medium">Real-time Financial Overview</small>
+            <h4 class="fw-bold m-0" style="letter-spacing: -0.5px; color: var(--dark-text);">{{ SITE_NAME }} Dashboard</h4>
+            <small class="fw-medium" style="color: var(--light-text);">Real-time Financial Overview</small>
         </div>
     </div>
     <div>
@@ -178,13 +250,13 @@
             <a href="{% url 'journal-create' %}" class="btn btn-primary fw-bold px-4 py-2">
                 <i class="bi bi-plus-lg me-2"></i> New Entry
             </a>
-            <button type="button" class="btn btn-white border dropdown-toggle dropdown-toggle-split text-secondary" data-bs-toggle="dropdown">
+            <button type="button" class="btn btn-white border dropdown-toggle dropdown-toggle-split" style="border-color: var(--border-color);" data-bs-toggle="dropdown">
                 <span class="visually-hidden">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3 mt-2">
-                <li><a class="dropdown-item py-2" href="{% url 'account-add' %}"><i class="bi bi-bank2 me-2 text-muted"></i> Create Account</a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'account-add' %}"><i class="bi bi-bank2 me-2"></i> Create Account</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item py-2" href="{% url 'income-statement' %}"><i class="bi bi-file-earmark-bar-graph me-2 text-muted"></i> View Reports</a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'income-statement' %}"><i class="bi bi-file-earmark-bar-graph me-2"></i> View Reports</a></li>
             </ul>
         </div>
     </div>
@@ -193,56 +265,56 @@
 <div class="row g-4 mb-5">
     <div class="col-md-6 col-lg-3">
         <div class="kpi-card border-l-blue">
-            <div class="icon-bg bg-blue-soft"><i class="bi bi-briefcase"></i></div>
+            <div class="icon-bg"><i class="bi bi-briefcase"></i></div>
             <div class="kpi-label">Total Assets</div>
             <div class="kpi-value">{{ total_assets|floatformat:0 }}</div>
-            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
-                <div class="bg-primary w-25 rounded-1" style="height: 40%"></div>
-                <div class="bg-primary w-25 rounded-1" style="height: 80%"></div>
-                <div class="bg-primary w-25 rounded-1" style="height: 60%"></div>
-                <div class="bg-primary w-25 rounded-1" style="height: 100%"></div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px;">
+                <div class="rounded-1 w-25" style="height: 40%; background-color: var(--primary-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 80%; background-color: var(--primary-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 60%; background-color: var(--primary-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 100%; background-color: var(--primary-color); opacity: 0.4;"></div>
             </div>
         </div>
     </div>
     
     <div class="col-md-6 col-lg-3">
         <div class="kpi-card border-l-red">
-            <div class="icon-bg bg-red-soft"><i class="bi bi-bank"></i></div>
+            <div class="icon-bg"><i class="bi bi-bank"></i></div>
             <div class="kpi-label">Liabilities</div>
             <div class="kpi-value">{{ total_liabilities|floatformat:0 }}</div>
-            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
-                <div class="bg-danger w-25 rounded-1" style="height: 30%"></div>
-                <div class="bg-danger w-25 rounded-1" style="height: 50%"></div>
-                <div class="bg-danger w-25 rounded-1" style="height: 70%"></div>
-                <div class="bg-danger w-25 rounded-1" style="height: 40%"></div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px;">
+                <div class="rounded-1 w-25" style="height: 30%; background-color: var(--danger-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 50%; background-color: var(--danger-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 70%; background-color: var(--danger-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 40%; background-color: var(--danger-color); opacity: 0.4;"></div>
             </div>
         </div>
     </div>
 
     <div class="col-md-6 col-lg-3">
         <div class="kpi-card border-l-green">
-            <div class="icon-bg bg-green-soft"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="icon-bg"><i class="bi bi-graph-up-arrow"></i></div>
             <div class="kpi-label">Total Revenue</div>
             <div class="kpi-value">{{ total_revenue|floatformat:0 }}</div>
-            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
-                <div class="bg-success w-25 rounded-1" style="height: 20%"></div>
-                <div class="bg-success w-25 rounded-1" style="height: 60%"></div>
-                <div class="bg-success w-25 rounded-1" style="height: 80%"></div>
-                <div class="bg-success w-25 rounded-1" style="height: 100%"></div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px;">
+                <div class="rounded-1 w-25" style="height: 20%; background-color: var(--success-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 60%; background-color: var(--success-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 80%; background-color: var(--success-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 100%; background-color: var(--success-color); opacity: 0.4;"></div>
             </div>
         </div>
     </div>
 
     <div class="col-md-6 col-lg-3">
         <div class="kpi-card border-l-orange">
-            <div class="icon-bg bg-orange-soft"><i class="bi bi-pie-chart"></i></div>
+            <div class="icon-bg"><i class="bi bi-pie-chart"></i></div>
             <div class="kpi-label">Net Profit</div>
             <div class="kpi-value">{{ net_profit|floatformat:0 }}</div>
-            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px; opacity: 0.4;">
-                <div class="bg-warning w-25 rounded-1" style="height: 40%"></div>
-                <div class="bg-warning w-25 rounded-1" style="height: 60%"></div>
-                <div class="bg-warning w-25 rounded-1" style="height: 30%"></div>
-                <div class="bg-warning w-25 rounded-1" style="height: 90%"></div>
+            <div class="d-flex align-items-end mt-3 gap-1" style="height: 15px;">
+                <div class="rounded-1 w-25" style="height: 40%; background-color: var(--warning-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 60%; background-color: var(--warning-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 30%; background-color: var(--warning-color); opacity: 0.4;"></div>
+                <div class="rounded-1 w-25" style="height: 90%; background-color: var(--warning-color); opacity: 0.4;"></div>
             </div>
         </div>
     </div>
@@ -252,8 +324,21 @@
     <div class="col-lg-8">
         <div class="chart-card">
             <div class="d-flex justify-content-between mb-4 align-items-center">
-                <h6 class="fw-bold text-dark m-0 text-uppercase small">Revenue vs Expense Trend</h6>
-                <span class="badge bg-light text-dark border px-3 py-2">This Year</span>
+                <h6 class="fw-bold m-0 text-uppercase small" style="color: var(--dark-text);">Revenue vs Expense Trend</h6>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <label class="small mb-0" style="color: var(--light-text);">Year:</label>
+                    <select id="yearFilter" class="form-select form-select-sm" style="width: 120px;">
+                        {% for year in available_years %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                        {% if not available_years %}
+                        <option value="{{ current_year }}">{{ current_year }}</option>
+                        {% endif %}
+                    </select>
+                </div>
             </div>
             <div style="height: 300px;">
                 <canvas id="barChart"></canvas>
@@ -263,18 +348,18 @@
     
     <div class="col-lg-4">
         <div class="chart-card">
-            <h6 class="fw-bold text-dark mb-4 text-uppercase small">Expense Distribution</h6>
+            <h6 class="fw-bold mb-4 text-uppercase small" style="color: var(--dark-text);">Expense Distribution</h6>
             <div style="height: 250px; display: flex; justify-content: center;">
                 <canvas id="pieChart"></canvas>
             </div>
-            <div class="text-center mt-3 small text-muted">Top categories by spending</div>
+            <div class="text-center mt-3 small" style="color: var(--light-text);">Top categories by spending</div>
         </div>
     </div>
 </div>
 
 <div class="section-header">
     <h5 class="section-title">Ledger Balances</h5>
-    <a href="{% url 'account-list' %}" class="text-decoration-none fw-bold small text-primary">View All &rarr;</a>
+    <a href="{% url 'account-list' %}" class="text-decoration-none fw-bold small" style="color: var(--primary-color);">View All &rarr;</a>
 </div>
 
 <div class="row g-4 mb-5">
@@ -284,65 +369,71 @@
             <span class="acc-tag tag-{{ account.account_type }}">{{ account.account_type }}</span>
             <div class="acc-name">{{ account.name }}</div>
 
-<div class="acc-bal {% if account.get_balance < 0 %}text-danger{% endif %}">
-    {{ account.get_balance|taka }}
-</div>
+            <div class="acc-bal {% if account.get_balance < 0 %}text-danger{% endif %}">
+                {{ account.get_balance|taka }}
+            </div>
 
-{% if account.get_balance < 0 %}
-    <div class="mb-2">
-        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.65rem;">
-            ⚠️ Overdraft
-        </span>
-    </div>
-{% endif %}
+            {% if account.get_balance < 0 %}
+            <div class="mb-2">
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                    ⚠️ Overdraft
+                </span>
+            </div>
+            {% endif %}
 
-<div class="text-end pt-2 border-top">
-                <a href="{% url 'ledger' account.id %}" class="text-decoration-none small fw-bold text-primary stretched-link">
+            <div class="text-end pt-2" style="border-top: 1px solid var(--border-color);">
+                <a href="{% url 'ledger' account.id %}" class="text-decoration-none small fw-bold stretched-link" style="color: var(--primary-color);">
                     Ledger History <i class="bi bi-clock-history ms-1"></i>
                 </a>
             </div>
         </div>
     </div>
     {% empty %}
-    <div class="col-12 text-center py-5 text-muted bg-white rounded-3 border border-dashed">
-        <i class="bi bi-folder2-open display-4 mb-2"></i>
-        <p>No accounts found. Start by adding one.</p>
+    <div class="col-12 text-center py-5 rounded-3 border" style="background-color: var(--bg-card); border-style: dashed !important; border-color: var(--border-color) !important;">
+        <i class="bi bi-folder2-open display-4 mb-2" style="color: var(--light-text);"></i>
+        <p style="color: var(--light-text);">No accounts found. Start by adding one.</p>
     </div>
     {% endfor %}
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Get theme colors
+        const root = document.documentElement;
+        const primaryColor = getComputedStyle(root).getPropertyValue('--primary-color').trim();
+        const successColor = getComputedStyle(root).getPropertyValue('--success-color').trim();
+        const dangerColor = getComputedStyle(root).getPropertyValue('--danger-color').trim();
+        const warningColor = getComputedStyle(root).getPropertyValue('--warning-color').trim();
+        const secondaryColor = getComputedStyle(root).getPropertyValue('--secondary-color').trim();
+        const lightText = getComputedStyle(root).getPropertyValue('--light-text').trim();
+        const borderColor = getComputedStyle(root).getPropertyValue('--border-color').trim();
+        
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.font.size = 12;
-        Chart.defaults.color = '#64748b';
+        Chart.defaults.color = lightText;
 
-        // Django থেকে আসা data
         const monthlyRevenue = {{ monthly_revenue|safe }};
         const monthlyExpense = {{ monthly_expense|safe }};
-        
-        // সব মাসের label (12টি)
         const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         
-        // --- 1. Bar Chart (Fixed - Dynamic Data) ---
         const barCtx = document.getElementById('barChart');
         if (barCtx && monthlyRevenue.length === 12 && monthlyExpense.length === 12) {
             new Chart(barCtx, {
                 type: 'bar',
                 data: {
-                    labels: monthLabels, // সব 12 মাস
+                    labels: monthLabels,
                     datasets: [
                         { 
                             label: 'Revenue', 
-                            data: monthlyRevenue, // Dynamic data from Django
-                            backgroundColor: '#10b981',
+                            data: monthlyRevenue, 
+                            backgroundColor: successColor,
                             borderRadius: 6,
                             maxBarThickness: 50
                         },
                         { 
                             label: 'Expense', 
-                            data: monthlyExpense, // Dynamic data from Django
-                            backgroundColor: '#ef4444',
+                            data: monthlyExpense,
+                            backgroundColor: dangerColor,
                             borderRadius: 6,
                             maxBarThickness: 50
                         }
@@ -358,7 +449,8 @@
                             labels: {
                                 usePointStyle: true,
                                 boxWidth: 8,
-                                padding: 15
+                                padding: 15,
+                                color: lightText
                             }
                         },
                         tooltip: {
@@ -368,9 +460,7 @@
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
+                                    if (label) label += ': ';
                                     label += context.parsed.y.toLocaleString('en-BD');
                                     return label;
                                 }
@@ -381,28 +471,25 @@
                         y: {
                             beginAtZero: true,
                             grid: {
-                                color: '#f1f5f9',
+                                color: borderColor,
                                 borderDash: [5, 5]
                             },
                             ticks: {
+                                color: lightText,
                                 callback: function(value) {
-                                    return value.toLocaleString('en-BD'); // Number formatting
+                                    return value.toLocaleString('en-BD'); 
                                 }
                             }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false },
+                            ticks: { color: lightText }
                         }
                     }
                 }
             });
-        } else {
-            console.error('Bar chart data mismatch: Revenue or Expense array length is not 12');
         }
 
-        // --- 2. Pie/Doughnut Chart ---
         const ctxPie = document.getElementById('pieChart');
         const expData = {{ expense_data|safe }};
         const expLabels = {{ expense_labels|safe }};
@@ -414,7 +501,7 @@
                     labels: expLabels,
                     datasets: [{
                         data: expData,
-                        backgroundColor: ['#ef4444', '#f59e0b', '#2563eb', '#8b5cf6', '#64748b'],
+                        backgroundColor: [dangerColor, warningColor, primaryColor, secondaryColor, successColor],
                         borderWidth: 0,
                         hoverOffset: 10
                     }]
@@ -428,16 +515,15 @@
                             labels: {
                                 usePointStyle: true,
                                 padding: 20,
-                                font: { size: 11 }
+                                font: { size: 11 },
+                                color: lightText
                             }
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
+                                    if (label) label += ': ';
                                     label += context.parsed.toLocaleString('en-BD');
                                     return label;
                                 }
@@ -448,7 +534,14 @@
                 }
             });
         } else if (ctxPie) {
-            ctxPie.parentElement.innerHTML = '<div class="text-center text-muted py-5"><p class="small fw-bold">No Data Available</p></div>';
+            ctxPie.parentElement.innerHTML = '<div class="text-center py-5"><p class="small fw-bold" style="color: ' + lightText + ';">No Data Available</p></div>';
+        }
+        
+        const yearFilter = document.getElementById('yearFilter');
+        if (yearFilter) {
+            yearFilter.addEventListener('change', function() {
+                window.location.href = `?year=${this.value}`;
+            });
         }
     });
 </script>

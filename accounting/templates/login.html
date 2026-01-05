@@ -8,26 +8,97 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
-    /* ============================================
-       AUTHENTICATION CARD STYLES
-       ============================================ */
+    /* ========================================
+       THEME VARIABLES
+    ======================================== */
+    :root {
+        /* Default (Light Mode) */
+        --bg-body: #f8fafc;
+        --bg-card: #ffffff;
+        --border-color: #cbd5e1;
+        --border-card: transparent;
+        --text-main: #334155;
+        --text-header: #ffffff;
+        --text-muted: #6b7280;
+        --primary-bg: #1e293b;
+        --primary-hover: #0f172a;
+        --input-bg: #ffffff;
+        --input-text: #334155;
+        --input-focus-shadow: rgba(30, 41, 59, 0.15);
+        --footer-bg: #f8f9fa;
+        --footer-text: #6c757d;
+        --link-color: #1e293b;
+        --link-hover: #0f172a;
+    }
+
+    /* DARK MODE OVERRIDES */
+    [data-theme="dark"] {
+        --bg-body: #020617;
+        --bg-card: #1e293b;
+        --border-color: #334155;
+        --border-card: #334155;
+        --text-main: #f8fafc;
+        --text-header: #ffffff;
+        --text-muted: #94a3b8;
+        --primary-bg: #4f46e5;
+        --primary-hover: #4338ca;
+        --input-bg: #0f172a;
+        --input-text: #ffffff;
+        --input-focus-shadow: rgba(99, 102, 241, 0.25);
+        --footer-bg: #0f172a;
+        --footer-text: #94a3b8;
+        --link-color: #818cf8;
+        --link-hover: #a5b4fc;
+    }
+
+    /* OTHER THEMES */
+    [data-theme="green"] { --primary-bg: #059669; --primary-hover: #047857; --link-color: #059669; }
+    [data-theme="blue"] { --primary-bg: #0ea5e9; --primary-hover: #0284c7; --link-color: #0ea5e9; }
+    [data-theme="purple"] { --primary-bg: #7c3aed; --primary-hover: #6d28d9; --link-color: #7c3aed; }
+
+    /* ========================================
+       STYLES & ANIMATIONS
+    ======================================== */
+    body {
+        background-color: var(--bg-body);
+        transition: background-color 0.3s ease;
+    }
+
+    /* Authentication Card */
     .auth-card {
         border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-card);
+        background-color: var(--bg-card);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
     }
     
     .auth-card .card-header {
-        background-color: #1e293b;
-        color: white;
+        background-color: var(--primary-bg);
+        color: var(--text-header);
         border-radius: 16px 16px 0 0;
         border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Header Shimmer Animation */
+    .auth-card .card-header::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255,0.1), transparent);
+        animation: shimmer 3s infinite linear;
     }
     
-    /* Company Logo Container (Bigger) */
+    /* Company Logo */
     .company-logo {
-        width: 100px;   /* increased from 80px */
-        height: 100px;  /* increased from 80px */
+        width: 100px;
+        height: 100px;
         margin: 0 auto 15px;
         background: white;
         border-radius: 14px;
@@ -36,6 +107,7 @@
         justify-content: center;
         padding: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: zoomIn 0.6s ease-out;
     }
     
     .company-logo img {
@@ -44,7 +116,6 @@
         object-fit: contain;
     }
     
-    /* Placeholder for no logo */
     .logo-placeholder {
         font-size: 36px;
         font-weight: 800;
@@ -55,25 +126,40 @@
         font-size: 1.75rem;
         font-weight: 700;
         letter-spacing: -0.5px;
+        color: var(--text-header);
+        animation: fadeIn 1s ease-out;
     }
     
     /* Form Inputs */
     .auth-card input {
         border-radius: 8px;
         padding: 12px 15px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--border-color);
+        background-color: var(--input-bg);
+        color: var(--input-text);
         transition: all 0.2s;
     }
     
     .auth-card input:focus {
-        border-color: #1e293b;
-        box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
+        border-color: var(--primary-bg);
+        box-shadow: 0 0 0 3px var(--input-focus-shadow);
         outline: none;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+    }
+
+    /* Form Labels */
+    .form-label {
+        color: var(--text-muted) !important;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     /* Button Theme */
     .btn-theme {
-        background-color: #1e293b;
+        background-color: var(--primary-bg);
         color: white;
         font-weight: 600;
         padding: 12px;
@@ -83,9 +169,9 @@
     }
     
     .btn-theme:hover {
-        background-color: #0f172a;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         color: white;
     }
     
@@ -101,21 +187,30 @@
         margin-bottom: 0;
     }
     
+    .form-check-input {
+        background-color: var(--input-bg);
+        border-color: var(--border-color);
+    }
+
     .form-check-input:checked {
-        background-color: #1e293b;
-        border-color: #1e293b;
+        background-color: var(--primary-bg);
+        border-color: var(--primary-bg);
+    }
+
+    .form-check-label {
+        color: var(--text-main);
     }
     
     /* Links */
     .auth-link {
-        color: #1e293b;
+        color: var(--link-color);
         text-decoration: none;
         font-weight: 500;
         transition: color 0.2s;
     }
     
     .auth-link:hover {
-        color: #0f172a;
+        color: var(--link-hover);
         text-decoration: underline;
     }
     
@@ -124,6 +219,35 @@
         border-radius: 8px;
         border: none;
     }
+
+    /* Headings & Text */
+    h4, .text-muted {
+        color: var(--text-main) !important;
+    }
+
+    .text-muted.small {
+        color: var(--text-muted) !important;
+    }
+
+    /* Footer */
+    .card-footer {
+        background-color: var(--footer-bg) !important;
+        color: var(--footer-text) !important;
+        border-top: 1px solid var(--border-color) !important;
+        border-radius: 0 0 16px 16px !important;
+    }
+
+    /* Trust Indicators */
+    .text-center.mt-3 p {
+        color: var(--text-muted) !important;
+    }
+
+    /* ANIMATIONS KEYFRAMES */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
 </style>
 
 <div class="container py-5">
@@ -172,7 +296,7 @@
                         <!-- Form Fields -->
                         {% for field in form %}
                         <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-bold small text-uppercase text-muted">
+                            <label for="{{ field.id_for_label }}" class="form-label">
                                 {{ field.label }}
                             </label>
                             {{ field|add_class:"form-control" }}
@@ -209,7 +333,7 @@
                 </div>
                 
                 <!-- Card Footer -->
-                <div class="card-footer text-center small bg-light" style="border-radius: 0 0 16px 16px; border: none;">
+                <div class="card-footer text-center small">
                     New here?
                     <a href="{% url 'register' %}" class="auth-link">
                         Create an Account
@@ -219,7 +343,7 @@
             
             <!-- Trust Indicators -->
             <div class="text-center mt-3">
-                <p class="small text-muted mb-0">
+                <p class="small mb-0">
                     🔒 Secure Login • Your data is protected
                 </p>
             </div>

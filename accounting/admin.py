@@ -15,7 +15,7 @@ class AccountAdmin(admin.ModelAdmin):
 
 
 # ===========================================
-# Transaction Inline (Journal এর ভেতরে)
+# Transaction Inline 
 # ===========================================
 class TransactionInline(admin.TabularInline):
     model = Transaction
@@ -40,7 +40,7 @@ class JournalAdmin(admin.ModelAdmin):
 
 
 # ===========================================
-# Company Settings Admin (Logo Upload সহ)
+# Company Settings Admin 
 # ===========================================
 @admin.register(CompanySettings)
 class CompanySettingsAdmin(admin.ModelAdmin):
@@ -55,7 +55,7 @@ class CompanySettingsAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('logo_preview',)
     
-    # Logo preview দেখানোর জন্য
+    # Logo preview 
     def logo_preview(self, obj):
         if obj.logo:
             return format_html(
@@ -74,14 +74,14 @@ class CompanySettingsAdmin(admin.ModelAdmin):
     
     logo_status.short_description = 'Logo'
 
-    # একাধিক সেটিংস যেন তৈরি না হয়
+    
     def has_add_permission(self, request):
-        # যদি কোনো CompanySettings object already থাকে, তাহলে নতুন add করতে দেবে না
+       
         if CompanySettings.objects.exists():
             return False
         return super().has_add_permission(request)
     
-    # Delete করতে না দেওয়ার জন্য (optional - চাইলে রাখতে পারো)
+   
     def has_delete_permission(self, request, obj=None):
-        # Company settings delete করতে দিতে চাইলে True করে দাও
+       
         return True

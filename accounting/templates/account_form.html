@@ -2,36 +2,228 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="row justify-content-center py-5">
+<style>
+    /* ========================================
+       ACCOUNT FORM - ALL THEME COMPATIBLE
+    ======================================== */
+    
+    /* Container Animation */
+    .form-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* Modern Card */
+    .modern-card {
+        border: 1px solid var(--border-color) !important;
+        background-color: var(--bg-card);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .modern-card:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        transform: translateY(-5px);
+    }
+    
+    /* Card Header */
+    .card-header {
+        background-color: var(--navbar-bg) !important;
+        padding: 1.5rem !important;
+        animation: slideDown 0.5s ease-out;
+    }
+    
+    .card-header h4 {
+        color: var(--navbar-text) !important;
+        font-weight: 800;
+        margin: 0;
+        animation: fadeIn 0.7s ease-out;
+    }
+    
+    /* Card Body */
+    .card-body {
+        background-color: var(--bg-card) !important;
+        padding: 2rem 2.5rem !important;
+    }
+    
+    /* Form Groups Animation */
+    .form-group {
+        animation: fadeIn 0.5s ease-out backwards;
+    }
+    
+    .form-group:nth-child(1) { animation-delay: 0.2s; }
+    .form-group:nth-child(2) { animation-delay: 0.3s; }
+    
+    /* Form Labels */
+    .form-label {
+        color: var(--dark-text) !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    /* Form Inputs - FIXED FOR DARK MODE */
+    .form-control, .form-select {
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 10px !important;
+        padding: 0.875rem 1.25rem !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease;
+    }
+    
+    /* Placeholder color for dark mode */
+    .form-control::placeholder {
+        color: var(--light-text) !important;
+        opacity: 0.6;
+    }
+    
+    /* Select option colors for dark mode */
+    .form-select option {
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+        transform: translateY(-2px);
+    }
+    
+    .form-control:hover, .form-select:hover {
+        border-color: var(--primary-color) !important;
+    }
+    
+    /* Error Messages */
+    .text-danger {
+        color: var(--danger-color) !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        display: block;
+    }
+    
+    /* Buttons Container */
+    .button-group {
+        animation: fadeInUp 0.6s ease-out backwards;
+        animation-delay: 0.4s;
+    }
+    
+    /* Primary Button */
+    .btn-primary {
+        background-color: var(--primary-color) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 700;
+        padding: 0.875rem 2rem !important;
+        border-radius: 10px !important;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+    
+    .btn-primary:hover {
+        opacity: 0.95;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+    }
+    
+    /* Cancel Button */
+    .btn-light {
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+        border: 2px solid var(--border-color) !important;
+        font-weight: 700;
+        padding: 0.875rem 2rem !important;
+        border-radius: 10px !important;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-light:hover {
+        background-color: var(--border-color) !important;
+        color: var(--dark-text) !important;
+        transform: translateY(-2px);
+    }
+    
+    /* Icon Animation */
+    .btn i {
+        transition: transform 0.3s ease;
+    }
+    
+    .btn:hover i {
+        transform: scale(1.1);
+    }
+    
+    /* ========================================
+       ANIMATIONS
+    ======================================== */
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="row justify-content-center py-5 form-container">
     <div class="col-md-6">
         <div class="modern-card shadow-lg border-0 rounded-3 overflow-hidden">
             
-            <div class="card-header text-white p-4" style="background-color: #1e293b;">
+            <div class="card-header text-white p-4">
                 <h4 class="mb-0 fw-bold text-center">{{ title|default:"Manage Account" }}</h4>
             </div>
 
-            <div class="card-body p-4 p-md-5 bg-white">
+            <div class="card-body p-4 p-md-5">
                 <form method="POST">
                     {% csrf_token %}
                     
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-uppercase small text-muted">Account Name</label>
+                    <div class="mb-4 form-group">
+                        <label class="form-label fw-bold text-uppercase small">Account Name</label>
                         {{ form.name|add_class:"form-control form-control-lg" }}
                         {% if form.name.errors %}
                             <small class="text-danger">{{ form.name.errors.0 }}</small>
                         {% endif %}
                     </div>
                     
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-uppercase small text-muted">Account Type</label>
+                    <div class="mb-4 form-group">
+                        <label class="form-label fw-bold text-uppercase small">Account Type</label>
                         {{ form.account_type|add_class:"form-select form-select-lg" }}
                     </div>
 
-                    <div class="d-grid gap-2 mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg fw-bold" style="background-color: #4f46e5; border: none;">
+                    <div class="d-grid gap-2 mt-5 button-group">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">
                             <i class="bi bi-check-circle-fill me-2"></i> Save Changes
                         </button>
-                        <a href="{% url 'account-list' %}" class="btn btn-light btn-lg border text-muted fw-bold">
+                        <a href="{% url 'account-list' %}" class="btn btn-light btn-lg border fw-bold">
                             Cancel
                         </a>
                     </div>

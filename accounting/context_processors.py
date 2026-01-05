@@ -21,11 +21,11 @@ def site_settings(request):
                 currency = settings_obj.currency_symbol
 
             if settings_obj.logo:
-                # store URL so template থেকে সরাসরি img src ব্যবহার করা যায়
+               
                 site_logo = settings_obj.logo.url
 
     except Exception:
-        # মাইগ্রেশন রান না থাকলে / টেবিল না থাকলে safe fallback
+        
         pass
 
     return {

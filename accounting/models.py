@@ -21,18 +21,18 @@ class Account(models.Model):
         return self.name
 
     def get_balance(self, filter_date=None):
-        # ১. ডিফল্ট ফিল্টার (শুধুমাত্র Posted জার্নাল)
+        
         tx_filter = {'journal__status': 'Posted'}
         
-        # ২. যদি ডেট দেওয়া থাকে, তাহলে ফিল্টারে যোগ করো
+      
         if filter_date:
             tx_filter['journal__date__lte'] = filter_date
 
-        # ৩. ✅ এখন tx_filter ব্যবহার করে কুয়েরি চালাও
+        
         debit_sum = self.transaction_set.filter(**tx_filter).aggregate(Sum('debit'))['debit__sum'] or 0
         credit_sum = self.transaction_set.filter(**tx_filter).aggregate(Sum('credit'))['credit__sum'] or 0
         
-        # ব্যালেন্স রিটার্ন করা
+      
         if self.account_type in ['Asset', 'Expense']:
             return debit_sum - credit_sum
         else:

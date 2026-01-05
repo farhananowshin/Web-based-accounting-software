@@ -13,13 +13,16 @@ from datetime import datetime
 from django.views.decorators.http import require_GET
 from .models import Account
 
+
 # Import Forms and Models
 from .forms import JournalForm, TransactionFormSet, UserRegistrationForm, AccountForm
 from .models import Journal, Transaction, Account, CompanySettings
 
+
 # ==========================================
 # 1. AUTHENTICATION
 # ==========================================
+
 
 def register_view(request):
     if request.method == 'POST':
@@ -38,6 +41,7 @@ def register_view(request):
     
     company = CompanySettings.objects.first()
     return render(request, 'register.html', {'form': form, 'company': company})
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -59,6 +63,7 @@ def login_view(request):
     company = CompanySettings.objects.first()
     return render(request, 'login.html', {'form': form, 'company': company})
 
+
 def logout_view(request):
     if request.method == 'POST':
         logout(request)
@@ -66,8 +71,9 @@ def logout_view(request):
         return redirect('login')
     return redirect('dashboard')
 
+
 # ==========================================
-# 2. DASHBOARD
+# 2. DASHBOARD WITH YEAR FILTER
 # ==========================================
 @login_required
 def dashboard_view(request):
@@ -83,48 +89,64 @@ def dashboard_view(request):
         expense_labels = []
         expense_data = []
         
-        # === NEW: Monthly Revenue & Expense Calculation ===
-        monthly_revenue = [0] * 12
-        monthly_expense = [0] * 12
+        # ✅ NEW: Get year from request, default to current year
+        selected_year = request.GET.get('year')
         current_year = datetime.now().year
         
-        # Calculate monthly revenue
-        revenue_accounts = Account.objects.filter(account_type='Revenue')
-        for acc in revenue_accounts:
-            monthly_txns = Transaction.objects.filter(
-                account=acc,
-                journal__status='Posted',
-                journal__date__year=current_year
-            ).annotate(
-                month=TruncMonth('journal__date')
-            ).values('month').annotate(
-                total_credit=Sum('credit')
-            )
-            
-            for item in monthly_txns:
-                month_index = item['month'].month - 1
-                monthly_revenue[month_index] += float(item['total_credit'] or 0)
+        if selected_year:
+            try:
+                selected_year = int(selected_year)
+            except:
+                selected_year = current_year
+        else:
+            selected_year = current_year
         
-        # Calculate monthly expense
-        expense_accounts = Account.objects.filter(account_type='Expense')
-        for acc in expense_accounts:
-            monthly_txns = Transaction.objects.filter(
-                account=acc,
-                journal__status='Posted',
-                journal__date__year=current_year
-            ).annotate(
-                month=TruncMonth('journal__date')
-            ).values('month').annotate(
-                total_debit=Sum('debit')
-            )
-            
-            for item in monthly_txns:
-                month_index = item['month'].month - 1
-                monthly_expense[month_index] += float(item['total_debit'] or 0)
-        # === END NEW CODE ===
+        #  NEW: Get available years from database
+        available_years = Transaction.objects.filter(
+            journal__status='Posted'
+        ).dates('journal__date', 'year')
+        
+        # Extract unique years and sort in descending order
+        available_years = sorted(set([d.year for d in available_years]), reverse=True)
+        
+        # === Monthly Revenue & Expense Calculation ===
+        monthly_revenue = [0] * 12
+        monthly_expense = [0] * 12
+        
+       
+        rev_data = Transaction.objects.filter(
+            account__account_type='Revenue',
+            journal__status='Posted',
+            journal__date__year=selected_year  
+        ).annotate(
+            month_num=TruncMonth('journal__date')
+        ).values('month_num').annotate(
+            total=Sum('credit')
+        )
+        
+        for item in rev_data:
+            if item['month_num']:
+                idx = item['month_num'].month - 1
+                monthly_revenue[idx] = float(item['total'] or 0)
+        
+        
+        exp_data = Transaction.objects.filter(
+            account__account_type='Expense',
+            journal__status='Posted',
+            journal__date__year=selected_year 
+        ).annotate(
+            month_num=TruncMonth('journal__date')
+        ).values('month_num').annotate(
+            total=Sum('debit')
+        )
+        
+        for item in exp_data:
+            if item['month_num']:
+                idx = item['month_num'].month - 1
+                monthly_expense[idx] = float(item['total'] or 0)
 
+        # Dashboard KPI Calculations
         for acc in accounts:
-            # ড্যাশবোর্ডে আমরা সবসময় কারেন্ট ব্যালেন্স দেখাবো
             balance = acc.get_balance() 
             
             if acc.account_type == 'Asset':
@@ -149,10 +171,13 @@ def dashboard_view(request):
             'total_revenue': total_revenue,
             'total_expense': total_expense,
             'accounts': accounts,
-            'expense_labels': expense_labels,
-            'expense_data': expense_data,
-            'monthly_revenue': monthly_revenue,  # NEW
-            'monthly_expense': monthly_expense,  # NEW
+            'expense_labels': json.dumps(expense_labels),
+            'expense_data': json.dumps(expense_data),
+            'monthly_revenue': json.dumps(monthly_revenue),
+            'monthly_expense': json.dumps(monthly_expense),
+            'selected_year': selected_year,       
+            'available_years': available_years,  
+            'current_year': current_year,
         }
         return render(request, 'dashboard.html', context)
     except Exception as e:
@@ -164,14 +189,17 @@ def dashboard_view(request):
 # 3. JOURNAL MANAGEMENT
 # ==========================================
 
+
 @login_required
 def create_journal_view(request):
     return handle_journal_form(request, title="Create Journal Entry", button_text="Post Entry")
+
 
 @login_required
 def update_journal_view(request, pk):
     journal = get_object_or_404(Journal, pk=pk)
     return handle_journal_form(request, journal, "Edit Journal Entry", "Update Entry")
+
 
 @login_required
 def handle_journal_form(request, journal=None, title="", button_text=""):
@@ -238,6 +266,7 @@ def handle_journal_form(request, journal=None, title="", button_text=""):
     
     return render(request, 'journal_form.html', {'form': form, 'formset': formset, 'title': title, 'button_text': button_text})
 
+
 @login_required
 def journal_list_view(request):
     selected_date = request.GET.get('date', '').strip()
@@ -254,6 +283,7 @@ def journal_list_view(request):
 
     return render(request, 'journal_list.html', {'journals': journals, 'selected_date': selected_date, 'search_query': search_query})
 
+
 @login_required
 def delete_journal_view(request, pk):
     journal = get_object_or_404(Journal, pk=pk)
@@ -263,9 +293,11 @@ def delete_journal_view(request, pk):
         return redirect('journal-list')
     return render(request, 'journal_confirm_delete.html', {'journal': journal})
 
+
 # ==========================================
 # 4. ACCOUNT MANAGEMENT
 # ==========================================
+
 
 @csrf_exempt
 @login_required
@@ -285,6 +317,7 @@ def create_account_ajax(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
+
 @login_required
 def account_list_view(request):
     search_query = request.GET.get('search', '').strip()
@@ -294,7 +327,6 @@ def account_list_view(request):
     
     account_data = []
     for account in accounts:
-        # অ্যাকাউন্ট লিস্টে সব সময় কারেন্ট ব্যালেন্স দেখাবে
         balance = account.get_balance() 
         account_data.append({
             'id': account.id, 'name': account.name, 'account_type': account.account_type,
@@ -302,6 +334,7 @@ def account_list_view(request):
         })
     
     return render(request, 'account_list.html', {'accounts': account_data, 'search_query': search_query})
+
 
 @login_required
 def manage_account_view(request, pk=None):
@@ -314,6 +347,7 @@ def manage_account_view(request, pk=None):
         return redirect('account-list')
     return render(request, 'account_form.html', {'form': form, 'title': title})
 
+
 @login_required
 def delete_account_view(request, pk):
     account = get_object_or_404(Account, pk=pk)
@@ -325,9 +359,11 @@ def delete_account_view(request, pk):
             messages.error(request, 'Cannot delete used account.')
     return redirect('account-list')
 
+
 # ==========================================
 # 5. REPORTS (DATE FILTER ENABLED)
 # ==========================================
+
 
 @login_required
 def ledger_view(request, account_id):
@@ -350,10 +386,10 @@ def ledger_view(request, account_id):
     
     return render(request, 'ledger.html', {'account': account, 'ledger_data': ledger_data, 'current_balance': balance})
 
+
 @login_required
 def trial_balance_view(request):
     """Trial Balance with Date Filter"""
-    # 1. ইউজার কোনো ডেট সিলেক্ট করেছে কিনা তা চেক করা
     selected_date = request.GET.get('date')
     
     accounts = Account.objects.all()
@@ -362,7 +398,6 @@ def trial_balance_view(request):
     total_credit = 0
     
     for account in accounts:
-        # 2. ডেট মডেলে পাঠিয়ে দেওয়া হচ্ছে
         balance = account.get_balance(selected_date)
         
         if balance == 0: continue
@@ -390,8 +425,9 @@ def trial_balance_view(request):
         'trial_balance': trial_balance, 
         'total_debit': total_debit, 
         'total_credit': total_credit,
-        'selected_date': selected_date # ডেট টেমপ্লেটে ফেরত পাঠানো
+        'selected_date': selected_date
     })
+
 
 @login_required
 def income_statement_view(request):
@@ -401,7 +437,6 @@ def income_statement_view(request):
     revenues = Account.objects.filter(account_type='Revenue')
     expenses = Account.objects.filter(account_type='Expense')
     
-    # 3. সব জায়গায় selected_date ব্যবহার করা হচ্ছে
     total_revenue = sum(a.get_balance(selected_date) for a in revenues)
     total_expense = sum(a.get_balance(selected_date) for a in expenses)
     net_profit = total_revenue - total_expense
@@ -412,6 +447,7 @@ def income_statement_view(request):
         'net_profit': net_profit,
         'selected_date': selected_date
     })
+
 
 @login_required
 def balance_sheet_view(request):
@@ -427,7 +463,6 @@ def balance_sheet_view(request):
     liabilities = Account.objects.filter(account_type='Liability')
     equity = Account.objects.filter(account_type='Equity')
     
-    # Pass date to all get_balance calls
     total_assets = sum(a.get_balance(selected_date) for a in assets)
     total_liabilities = sum(a.get_balance(selected_date) for a in liabilities)
     capital_base = sum(a.get_balance(selected_date) for a in equity)
@@ -443,18 +478,19 @@ def balance_sheet_view(request):
         'total_liab_equity': total_liab_equity,
         'selected_date': selected_date
     })
+
+
 @require_GET
 def account_balance_api(request, account_id):
     try:
         account = Account.objects.get(id=account_id)
-        # ✅ FIX: get_balance() মেথড ব্যবহার করুন account.balance এর পরিবর্তে
         current_balance = account.get_balance()
         
         return JsonResponse({
             'status': 'success',
             'balance': float(current_balance),
             'account_name': account.name,
-            'account_type': account.account_type  # এক্সট্রা তথ্য যুক্ত করা হলো
+            'account_type': account.account_type
         })
     except Account.DoesNotExist:
         return JsonResponse({

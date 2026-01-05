@@ -37,7 +37,7 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 # ==========================================
-# ২. Account Management Form
+# 2. Account Management Form
 # ==========================================
 class AccountForm(forms.ModelForm):
     class Meta:
@@ -53,7 +53,7 @@ class AccountForm(forms.ModelForm):
 
 
 # ==========================================
-# ৩. জার্নাল হেডার ফর্ম
+# 3.Journal Header Form
 # ==========================================
 class JournalForm(forms.ModelForm):
     class Meta:
@@ -73,7 +73,7 @@ class JournalForm(forms.ModelForm):
 
 
 # ==========================================
-# ৪. ট্রানজ্যাকশন লাইন ফর্ম
+# 4. Transaction line Form
 # ==========================================
 class TransactionForm(forms.ModelForm):
     class Meta:
@@ -98,7 +98,7 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['account'].queryset = Account.objects.all().order_by('name')
-        # আমরা ভিউ থেকে ভ্যালিডেশন হ্যান্ডেল করব, তাই এখানে রিকোয়ার্ড ফলস রাখছি
+        
         self.fields['account'].required = False
         self.fields['debit'].required = False
         self.fields['credit'].required = False
@@ -109,23 +109,23 @@ class TransactionForm(forms.ModelForm):
         debit = cleaned_data.get('debit') or 0
         credit = cleaned_data.get('credit') or 0
         
-        # যদি লাইনটি ডিলিট করার জন্য মার্ক করা থাকে, তবে ভ্যালিডেশনের দরকার নেই
+       
         if self.cleaned_data.get('DELETE'):
             return cleaned_data
 
-        # যদি লাইনটি পুরোপুরি খালি হয়, তবে ইগনোর করুন
+        
         if not account and debit == 0 and credit == 0:
             return cleaned_data
         
-        # যদি এমাউন্ট থাকে কিন্তু অ্যাকাউন্ট না থাকে
+        
         if (debit > 0 or credit > 0) and not account:
             raise forms.ValidationError("Please select an account.")
         
-        # একই লাইনে ডেবিট ও ক্রেডিট উভয়ই থাকতে পারবে না
+        
         if debit > 0 and credit > 0:
             raise forms.ValidationError("Enter either Debit or Credit, not both.")
         
-        # নেগেটিভ এমাউন্ট চেক
+       
         if debit < 0 or credit < 0:
             raise forms.ValidationError("Negative amounts are not allowed.")
         
@@ -133,14 +133,14 @@ class TransactionForm(forms.ModelForm):
 
 
 # ==========================================
-# ৫. TransactionFormSet (Final Setup)
+# 5. TransactionFormSet (Final Setup)
 # ==========================================
 TransactionFormSet = inlineformset_factory(
     Journal,
     Transaction,
     form=TransactionForm,
-    extra=1,          # শুরুতে ১টি খালি লাইন দেখাবে (আপনি চাইলে ৫ করতে পারেন)
-    can_delete=True,  # ডিলিট বাটন কাজ করবে
-    min_num=1,        # অন্তত ১টি লাইন থাকতেই হবে
-    validate_min=True # মিনিমাম লাইন ভ্যালিডেশন চেক করবে
+    extra=1,          
+    can_delete=True, 
+    min_num=1,       
+    validate_min=True 
 )
